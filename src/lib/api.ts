@@ -3,8 +3,8 @@ import axios from "axios";
 
 // Base axios instance - configure via Vite env VITE_API_BASE_URL or default to /api
 export const api = axios.create({
-  // baseURL: "https://aluminium-backend.onrender.com/",
-  baseURL: "http://localhost:3000",
+  baseURL: "https://ultra-water-backend.onrender.com",
+  // baseURL: "http://localhost:3000",
 
 });
 
