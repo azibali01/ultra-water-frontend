@@ -96,15 +96,15 @@ export default function SaleReturnPage() {
           itemName: inv?.itemName ?? it.itemName,
           category: inv?.category ?? "",
           salesRate: Number(inv?.salesRate ?? it.salesRate ?? 0),
-          color: it.color ?? inv?.color ?? "",
-          thickness: it.thickness ?? inv?.thickness ?? undefined,
+          
+         
           openingStock: Number(inv?.openingStock ?? 0),
           minimumStockLevel: Number(inv?.minimumStockLevel ?? 0),
           quantity: Number(it.quantity ?? 0),
-          unit: it.unit ?? inv?.unit ?? undefined,
+        
           discount: Number(it.discount ?? 0),
           discountAmount: Number(it.discountAmount ?? 0),
-          length: it.length ?? undefined,
+         
           metadata: {
             price: it.salesRate ?? undefined,
           },
@@ -116,12 +116,7 @@ export default function SaleReturnPage() {
       invoiceDate,
       products: products.map((item) => ({
         ...item,
-        thickness:
-          typeof item.thickness === "string"
-            ? isNaN(Number(item.thickness))
-              ? undefined
-              : Number(item.thickness)
-            : item.thickness,
+      
       })),
       subTotal: Math.floor(payload.totals?.subTotal ?? 0),
       totalGrossAmount: Math.floor(payload.totals?.totalGrossAmount ?? 0),
@@ -257,9 +252,9 @@ export default function SaleReturnPage() {
                     salesRate: 0,
                     discount: 0,
                     discountAmount: 0,
-                    length: 0,
-                    color: "",
-                    unit: "pcs",
+                  
+                  
+                  
                     amount: 0,
                     totalGrossAmount: 0,
                     totalNetAmount: 0,
@@ -351,12 +346,7 @@ export default function SaleReturnPage() {
                                   itemName: item.itemName ?? "",
                                   description: item.description ?? "",
                                   category: item.category ?? "",
-                                  unit:
-                                    typeof item.unit === "string"
-                                      ? item.unit
-                                      : typeof item.unit === "number"
-                                      ? String(item.unit)
-                                      : "",
+                               
                                   quantity: item.quantity ?? 0,
                                   salesRate: item.salesRate ?? 0,
                                   amount: 0, // fallback, since not present on InventoryItemPayload

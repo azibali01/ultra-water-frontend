@@ -101,7 +101,7 @@ export default function SalesDocShell({
       salesRate: 0,
       discount: 0,
       amount: 0,
-      length: 0,
+  
       totalGrossAmount: 0,
       totalNetAmount: 0,
       discountAmount: 0,
@@ -157,7 +157,7 @@ export default function SalesDocShell({
             Number(it.quantity ?? 0) *
             Number(it.salesRate ?? it.salesRate ?? 0),
           price: it.salesRate ?? 0,
-          length: it.length ?? 0,
+         
           totalGrossAmount: it.totalGrossAmount ?? 0,
           totalNetAmount: it.totalNetAmount ?? 0,
           discountAmount: it.discountAmount ?? 0,
@@ -183,7 +183,7 @@ export default function SalesDocShell({
             Number(it.quantity ?? 0) *
             Number(it.salesRate ?? it.salesRate ?? 0),
           price: it.salesRate ?? 0,
-          length: it.length ?? 0,
+         
           totalGrossAmount: it.totalGrossAmount ?? 0,
           totalNetAmount: it.totalNetAmount ?? 0,
           discountAmount: it.discountAmount ?? 0,
@@ -198,7 +198,7 @@ export default function SalesDocShell({
           salesRate: 0,
           discount: 0,
           amount: 0,
-          length: 0,
+        
           totalGrossAmount: 0,
           totalNetAmount: 0,
           discountAmount: 0,
@@ -287,7 +287,7 @@ export default function SalesDocShell({
             "",
           itemName: it.itemName ?? "",
           invoiceNumber: it._id ?? generateId(),
-          unit: it.unit ?? "",
+        
           quantity: Number(it.quantity ?? 0),
           salesRate: Number(it.salesRate ?? it.salesRate ?? 0),
           discount: it.discount ?? 0,
@@ -295,10 +295,10 @@ export default function SalesDocShell({
             Number(it.quantity ?? 0) *
             Number(it.salesRate ?? it.salesRate ?? 0),
           price: it.salesRate ?? 0,
-          color: it.color ?? "",
+       
           openingStock: it.openingStock ?? 0,
-          thickness: it.thickness ?? 0,
-          length: it.length ?? 0,
+      
+        
           totalGrossAmount: it.totalGrossAmount ?? 0,
           totalNetAmount: it.totalNetAmount ?? 0,
           discountAmount: it.discountAmount ?? 0,
@@ -313,7 +313,7 @@ export default function SalesDocShell({
             "",
           itemName: it.itemName ?? "",
           invoiceNumber: it._id ?? generateId(),
-          unit: it.unit ?? "",
+         
           quantity: Number(it.quantity ?? 0),
           salesRate: Number(it.salesRate ?? it.salesRate ?? 0),
           discount: it.discount ?? 0,
@@ -321,10 +321,9 @@ export default function SalesDocShell({
             Number(it.quantity ?? 0) *
             Number(it.salesRate ?? it.salesRate ?? 0),
           price: it.salesRate ?? 0,
-          color: it.color ?? "",
+       
           openingStock: it.openingStock ?? 0,
-          thickness: it.thickness ?? 0,
-          length: it.length ?? 0,
+        
           totalGrossAmount: it.totalGrossAmount ?? 0,
           totalNetAmount: it.totalNetAmount ?? 0,
           discountAmount: it.discountAmount ?? 0,
@@ -335,15 +334,15 @@ export default function SalesDocShell({
         {
           _id: generateId(),
           itemName: "",
-          unit: "",
+   
           quantity: 1,
           salesRate: 0,
           discount: 0,
           amount: 0,
-          color: "",
+  
           openingStock: 0,
-          thickness: 0,
-          length: 0,
+     
+        
           totalGrossAmount: 0,
           totalNetAmount: 0,
           discountAmount: 0,

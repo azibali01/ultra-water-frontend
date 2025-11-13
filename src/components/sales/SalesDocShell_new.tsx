@@ -61,7 +61,7 @@ export default function SalesDocShell({
       discount: 0,
       discountAmount: 0,
       amount: 0,
-      length: 0,
+    
       totalGrossAmount: 0,
       totalNetAmount: 0,
     },

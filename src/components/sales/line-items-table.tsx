@@ -13,6 +13,7 @@ export type LineItem = {
   discountAmount?: number;
   salesRate?: number;
   quantity?: number;
+  openingStock?:number;
   amount: number;
   totalGrossAmount: number;
   totalNetAmount: number;

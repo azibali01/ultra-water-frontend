@@ -68,7 +68,7 @@ export function PurchaseInvoiceForm({
             .slice(0, 10)
       : ""
   );
-  const { inventory = [], colors = [], suppliers = [] } = useDataContext();
+  const { inventory = [],suppliers = [] } = useDataContext();
   function isSupplierObject(obj: unknown): obj is { _id: string } {
     return (
       !!obj &&
@@ -100,7 +100,7 @@ export function PurchaseInvoiceForm({
           ...p,
           id: p.id || crypto.randomUUID(),
           productId: p.productId ?? "",
-          unit: typeof p.unit === "string" ? p.unit : "pcs",
+        
           grossAmount: typeof p.grossAmount === "number" ? p.grossAmount : 0,
           netAmount: typeof p.netAmount === "number" ? p.netAmount : 0,
         }))
@@ -111,7 +111,7 @@ export function PurchaseInvoiceForm({
             productName: "Select product",
             quantity: 1,
             rate: 0,
-            unit: "pcs",
+        
             length: 0,
             grossAmount: 0,
             percent: 0,
@@ -154,7 +154,7 @@ export function PurchaseInvoiceForm({
         productName: p.productName,
         quantity: Math.floor(Number(p.quantity) || 0),
         rate: Math.floor(Number(p.rate) || 0),
-        unit: typeof p.unit === "string" ? p.unit : "pcs",
+      
         length: Math.floor(Number(p.length) || 0),
         grossAmount: Math.floor(
           typeof p.grossAmount === "number" ? p.grossAmount : 0

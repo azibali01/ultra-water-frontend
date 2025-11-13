@@ -135,11 +135,11 @@ export default function PurchaseOrdersPage() {
             percent: 0,
             quantity: typeof item.quantity === "number" ? item.quantity : 0,
             rate: typeof item.rate === "number" ? item.rate : 0,
-            color: typeof item.color === "string" ? item.color : "",
+          
             grossAmount: 0,
             discountAmount: 0,
             netAmount: 0,
-            thickness: typeof item.thickness === "string" ? item.thickness : "",
+          
             length:
               typeof item.length === "string" || typeof item.length === "number"
                 ? item.length

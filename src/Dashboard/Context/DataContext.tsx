@@ -16,7 +16,6 @@ export interface InventoryItem {
   _id: string;
   itemName?: string;
   category?: string;
-  
   length?: string | number;
   salesRate?: number;
   openingStock?: number;
