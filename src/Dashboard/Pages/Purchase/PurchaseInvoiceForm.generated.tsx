@@ -47,7 +47,6 @@ export function PurchaseInvoiceForm({
     PurchaseInvoiceFormPayload & { products: PurchaseLineItem[] }
   >;
 }) {
-  // Use defaultInvoiceNumber prop for auto-generation
   const purchaseInvoiceNumber =
     initialValues?.purchaseInvoiceNumber || defaultInvoiceNumber;
   const [invoiceDate, setInvoiceDate] = useState<string>(
@@ -68,7 +67,7 @@ export function PurchaseInvoiceForm({
             .slice(0, 10)
       : ""
   );
-  const { inventory = [],suppliers = [] } = useDataContext();
+  const { inventory = [], suppliers = [] } = useDataContext();
   function isSupplierObject(obj: unknown): obj is { _id: string } {
     return (
       !!obj &&
@@ -100,7 +99,6 @@ export function PurchaseInvoiceForm({
           ...p,
           id: p.id || crypto.randomUUID(),
           productId: p.productId ?? "",
-        
           grossAmount: typeof p.grossAmount === "number" ? p.grossAmount : 0,
           netAmount: typeof p.netAmount === "number" ? p.netAmount : 0,
         }))
@@ -111,7 +109,6 @@ export function PurchaseInvoiceForm({
             productName: "Select product",
             quantity: 1,
             rate: 0,
-        
             length: 0,
             grossAmount: 0,
             percent: 0,
@@ -137,7 +134,6 @@ export function PurchaseInvoiceForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Only call onSubmit, let parent handle API and state
     const invoicePayload = {
       purchaseInvoiceNumber,
       invoiceDate: new Date(invoiceDate),
@@ -154,7 +150,6 @@ export function PurchaseInvoiceForm({
         productName: p.productName,
         quantity: Math.floor(Number(p.quantity) || 0),
         rate: Math.floor(Number(p.rate) || 0),
-      
         length: Math.floor(Number(p.length) || 0),
         grossAmount: Math.floor(
           typeof p.grossAmount === "number" ? p.grossAmount : 0
@@ -244,7 +239,7 @@ export function PurchaseInvoiceForm({
               <Select
                 data={suppliers.map((s: Supplier) => ({
                   value: String(s._id),
-                  label: `${s.name} — ${s.city}`,
+                  label: `${s.name ?? "Unknown"} — ${s.city ?? "Unknown"}`,
                 }))}
                 value={supplierId}
                 onChange={(v) => setSupplierId(v ?? "")}
@@ -438,7 +433,7 @@ export function PurchaseInvoiceForm({
                             searchable
                             data={inventory.map((p: InventoryItem) => ({
                               value: String(p._id),
-                              label: p.itemName,
+                              label: p.itemName ?? "Unknown",
                             }))}
                             value={
                               it.productName &&
@@ -572,7 +567,6 @@ export function PurchaseInvoiceForm({
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: 12, color: "#777" }}>Subtotal</div>
             <div style={{ fontSize: 14 }}>{formatCurrency(subTotal)}</div>
-            {/* GST removed */}
             <div style={{ fontSize: 12, color: "#777", marginTop: 8 }}>
               Total
             </div>

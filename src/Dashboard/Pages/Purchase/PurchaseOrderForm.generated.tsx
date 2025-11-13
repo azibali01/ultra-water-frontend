@@ -46,7 +46,6 @@ export function PurchaseOrderForm({
   defaultPONumber?: string;
   initialValues?: Partial<POFormPayload & { products: PurchaseLineItem[] }>;
 }) {
-  // Use defaultPONumber prop for auto-generation
   const poNumber = initialValues?.poNumber || defaultPONumber;
   const [poDate, setPoDate] = useState<string>(
     initialValues?.poDate
@@ -67,7 +66,7 @@ export function PurchaseOrderForm({
       : ""
   );
   const { inventory = [], suppliers = [] } = useDataContext();
-  // Support both supplierId and supplier object for edit modal prefill
+
   function isSupplierObject(obj: unknown): obj is { _id: string } {
     return (
       !!obj &&
@@ -76,6 +75,7 @@ export function PurchaseOrderForm({
       typeof (obj as { _id?: unknown })._id === "string"
     );
   }
+
   function getSupplierIdFromInitialValues(init?: typeof initialValues): string {
     if (init?.supplierId) return init.supplierId;
     if (init && typeof init === "object" && "supplier" in init) {
@@ -86,6 +86,7 @@ export function PurchaseOrderForm({
     }
     return "";
   }
+
   const [supplierId, setSupplierId] = useState<string>(
     getSupplierIdFromInitialValues(initialValues)
   );
@@ -95,7 +96,7 @@ export function PurchaseOrderForm({
   const [status] = useState("Draft");
   const [products, setProducts] = useState<PurchaseLineItem[]>(
     initialValues?.products && initialValues.products.length > 0
-          ? initialValues.products.map((p) => ({
+      ? initialValues.products.map((p) => ({
           id: p.id || crypto.randomUUID(),
           productId: p.productId || "",
           productName: p.productName || "Select product",
@@ -106,7 +107,6 @@ export function PurchaseOrderForm({
           grossAmount: p.grossAmount ?? 0,
           discountAmount: p.discountAmount ?? 0,
           netAmount: p.netAmount ?? 0,
-          // length removed
           amount: p.amount ?? 0,
         }))
       : [
@@ -121,11 +121,11 @@ export function PurchaseOrderForm({
             grossAmount: 0,
             discountAmount: 0,
             netAmount: 0,
-            // length removed
             amount: 0,
           },
         ]
   );
+
   const subTotal = useMemo(() => {
     return products.reduce((s, i) => {
       const rate = Number(i.rate) || 0;
@@ -141,7 +141,6 @@ export function PurchaseOrderForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Only call onSubmit, let parent handle API and state
     const purchasePayload = {
       poNumber,
       poDate: new Date(poDate),
@@ -156,14 +155,12 @@ export function PurchaseOrderForm({
           productId: inv?._id || p.productId || "",
           productName: p.productName || "Select product",
           code: p.code || "",
-          // `unit` removed from UI; do not include in payload
           percent: Math.floor(p.percent ?? 0),
           quantity: Math.floor(Number(p.quantity) || 1),
           rate: Math.floor(Number(p.rate) || 0),
           grossAmount: Math.floor(p.grossAmount ?? 0),
           discountAmount: Math.floor(p.discountAmount ?? 0),
           netAmount: Math.floor(p.netAmount ?? 0),
-          // length removed
           amount: Math.floor(Number(p.amount ?? 0)),
         };
       }),
@@ -241,7 +238,7 @@ export function PurchaseOrderForm({
               <Select
                 data={suppliers.map((s: Supplier) => ({
                   value: String(s._id),
-                  label: `${s.name} — ${s.city}`,
+                  label: `${s.name ?? "Unknown"} — ${s.city ?? "Unknown"}`,
                 }))}
                 value={supplierId}
                 onChange={(v) => setSupplierId(v ?? "")}
@@ -367,7 +364,6 @@ export function PurchaseOrderForm({
                       grossAmount: 0,
                       discountAmount: 0,
                       netAmount: 0,
-                      // length removed
                       amount: 0,
                     },
                   ])
@@ -383,7 +379,6 @@ export function PurchaseOrderForm({
                     <Table.Th style={{ textAlign: "left", padding: 8 }}>
                       Item
                     </Table.Th>
-                    
                     <Table.Th
                       style={{ textAlign: "left", padding: 8, width: 120 }}
                     >
@@ -424,7 +419,7 @@ export function PurchaseOrderForm({
                             searchable
                             data={inventory.map((p: InventoryItem) => ({
                               value: String(p._id),
-                              label: p.itemName,
+                              label: p.itemName ?? "Unknown",
                             }))}
                             value={
                               it.productName &&
@@ -457,22 +452,22 @@ export function PurchaseOrderForm({
                             placeholder="Select product"
                           />
                         </Table.Td>
-                        
-                            <Table.Td style={{ padding: 8 }}>
-                              <TextInput
-                                value={String(it.length ?? "")}
-                                onChange={(e) =>
-                                  setProducts((prev) =>
-                                    prev.map((row) =>
-                                      row.id === it.id
-                                        ? { ...row, length: e.target.value }
-                                        : row
-                                    )
-                                  )
-                                }
-                                placeholder="Length"
-                              />
-                            </Table.Td>
+
+                        <Table.Td style={{ padding: 8 }}>
+                          <TextInput
+                            value={String(it.length ?? "")}
+                            onChange={(e) =>
+                              setProducts((prev) =>
+                                prev.map((row) =>
+                                  row.id === it.id
+                                    ? { ...row, length: e.target.value }
+                                    : row
+                                )
+                              )
+                            }
+                            placeholder="Length"
+                          />
+                        </Table.Td>
                         <Table.Td style={{ padding: 8, textAlign: "right" }}>
                           <NumberInput
                             value={it.quantity === 0 ? "" : it.quantity}
@@ -558,7 +553,6 @@ export function PurchaseOrderForm({
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: 12, color: "#777" }}>Subtotal</div>
             <div style={{ fontSize: 14 }}>{formatCurrency(subTotal)}</div>
-            {/* GST removed */}
             <div style={{ fontSize: 12, color: "#777", marginTop: 8 }}>
               Total
             </div>
