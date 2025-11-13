@@ -45,12 +45,10 @@ type SaleItem = {
   quantity?: number;
   salesRate?: number;
   sellingPrice?: number;
-  thickness?: number | string;
   discount?: number;
   discountAmount?: number;
   length?: number;
-  color?: string;
-  unit?: string;
+  
   price?: number;
   totalGrossAmount?: number;
   totalNetAmount?: number;
@@ -184,26 +182,18 @@ export default function SaleInvoice() {
             (inv as any)?.supplier ?? (inv as any)?.supplierName ?? undefined,
           brand: inv?.brand ?? undefined,
           salesRate: Number(inv?.salesRate ?? it.salesRate ?? 0),
-          color: it.color ?? inv?.color ?? "",
-          thickness: it.thickness ?? inv?.thickness ?? undefined,
           openingStock: Number(inv?.openingStock ?? 0),
           minimumStockLevel: Number(inv?.minimumStockLevel ?? 0),
           quantity: Number(it.quantity ?? 0),
-          unit: it.unit ?? inv?.unit ?? undefined,
           discount: Number(it.discount ?? 0),
           discountAmount: Number(it.discountAmount ?? 0),
-          length: it.length ?? undefined,
+          
           metadata: { price: it.salesRate ?? undefined },
         } as SaleItem;
       }) ?? [];
     const mappedProducts = products.map((item) => ({
       ...item,
-      thickness:
-        typeof item.thickness === "string"
-          ? isNaN(Number(item.thickness))
-            ? undefined
-            : Number(item.thickness)
-          : item.thickness,
+      // thickness removed from payload
       discount: item.discount ?? 0,
       discountAmount: item.discountAmount ?? 0,
       quantity: item.quantity ?? 0,
@@ -293,26 +283,18 @@ export default function SaleInvoice() {
             (inv as any)?.supplier ?? (inv as any)?.supplierName ?? undefined,
           brand: inv?.brand ?? undefined,
           salesRate: Number(inv?.salesRate ?? it.salesRate ?? 0),
-          color: it.color ?? inv?.color ?? "",
-          thickness: it.thickness ?? inv?.thickness ?? undefined,
           openingStock: Number(inv?.openingStock ?? 0),
           minimumStockLevel: Number(inv?.minimumStockLevel ?? 0),
           quantity: Number(it.quantity ?? 0),
-          unit: it.unit ?? inv?.unit ?? undefined,
+          
           discount: Number(it.discount ?? 0),
           discountAmount: Number(it.discountAmount ?? 0),
-          length: it.length ?? undefined,
+          
           metadata: { price: it.salesRate ?? undefined },
         } as SaleItem;
       }) ?? [];
     const mappedProducts = products.map((item) => ({
       ...item,
-      thickness:
-        typeof item.thickness === "string"
-          ? isNaN(Number(item.thickness))
-            ? undefined
-            : Number(item.thickness)
-          : item.thickness,
       discount: item.discount ?? 0,
       discountAmount: item.discountAmount ?? 0,
       quantity: item.quantity ?? 0,
@@ -463,9 +445,7 @@ export default function SaleInvoice() {
                       salesRate: 0,
                       discount: 0,
                       discountAmount: 0,
-                      length: 0,
-                      color: "",
-                      unit: "pcs",
+                     
                       amount: 0,
                       totalGrossAmount: 0,
                       totalNetAmount: 0,
@@ -576,12 +556,6 @@ export default function SaleInvoice() {
                                   : invWithItems.products) ?? []
                               ).map((it: any) => ({
                                 ...it,
-                                unit:
-                                  typeof it.unit === "string"
-                                    ? it.unit
-                                    : it.unit !== undefined
-                                    ? String(it.unit)
-                                    : "",
                                 amount:
                                   (it.quantity ?? 0) * (it.salesRate ?? 0),
                                 totalGrossAmount:
@@ -612,12 +586,6 @@ export default function SaleInvoice() {
                             // Print logic: build invoice data and open print window
                             const items = (inv.products ?? []).map((it) => ({
                               ...it,
-                              unit:
-                                typeof it.unit === "string"
-                                  ? it.unit
-                                  : it.unit !== undefined
-                                  ? String(it.unit)
-                                  : "",
                               amount: (it.quantity ?? 0) * (it.salesRate ?? 0),
                               totalGrossAmount:
                                 (it.quantity ?? 0) * (it.salesRate ?? 0),
@@ -865,10 +833,6 @@ export default function SaleInvoice() {
                             totalGrossAmount: Number(it.totalGrossAmount ?? 0),
                             totalNetAmount: Number(it.totalNetAmount ?? 0),
                             amount: quantity * salesRate,
-                            unit:
-                              typeof it.unit === "string"
-                                ? it.unit
-                                : String(it.unit ?? ""),
                             metadata: {
                               // Ensure metadata is always an object
                               ...(it.metadata ?? {}),

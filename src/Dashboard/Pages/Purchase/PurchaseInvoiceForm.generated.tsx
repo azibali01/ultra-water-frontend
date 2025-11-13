@@ -112,8 +112,6 @@ export function PurchaseInvoiceForm({
             quantity: 1,
             rate: 0,
             unit: "pcs",
-            color: "",
-            thickness: "",
             length: 0,
             grossAmount: 0,
             percent: 0,
@@ -157,8 +155,6 @@ export function PurchaseInvoiceForm({
         quantity: Math.floor(Number(p.quantity) || 0),
         rate: Math.floor(Number(p.rate) || 0),
         unit: typeof p.unit === "string" ? p.unit : "pcs",
-        color: p.color,
-        thickness: p.thickness,
         length: Math.floor(Number(p.length) || 0),
         grossAmount: Math.floor(
           typeof p.grossAmount === "number" ? p.grossAmount : 0
@@ -442,13 +438,7 @@ export function PurchaseInvoiceForm({
                             searchable
                             data={inventory.map((p: InventoryItem) => ({
                               value: String(p._id),
-                              label: `${p.itemName}${
-                                p.thickness || p.color
-                                  ? ` (Thickness: ${
-                                      p.thickness ?? "-"
-                                    }, Color: ${p.color ?? "-"})`
-                                  : ""
-                              }`,
+                              label: p.itemName,
                             }))}
                             value={
                               it.productName &&
@@ -472,10 +462,7 @@ export function PurchaseInvoiceForm({
                                         ...row,
                                         productName: prod.itemName || "",
                                         rate: prod.salesRate || 0,
-                                        color: prod.color || undefined,
-                                        thickness: prod.thickness
-                                          ? String(prod.thickness)
-                                          : undefined,
+                                        length: prod.length ?? undefined,
                                       }
                                     : row
                                 )
@@ -484,40 +471,7 @@ export function PurchaseInvoiceForm({
                             placeholder="Select product"
                           />
                         </Table.Td>
-                        <Table.Td style={{ padding: 8 }}>
-                          <Select
-                            placeholder="Color"
-                            data={colors.map((c) => ({
-                              value: c.name,
-                              label: c.name,
-                            }))}
-                            value={it.color}
-                            onChange={(v) =>
-                              setProducts((prev) =>
-                                prev.map((row) =>
-                                  row.id === it.id
-                                    ? { ...row, color: v ?? undefined }
-                                    : row
-                                )
-                              )
-                            }
-                          />
-                        </Table.Td>
-                        <Table.Td style={{ padding: 8 }}>
-                          <TextInput
-                            value={it.thickness ?? ""}
-                            onChange={(e) =>
-                              setProducts((prev) =>
-                                prev.map((row) =>
-                                  row.id === it.id
-                                    ? { ...row, thickness: e.target.value }
-                                    : row
-                                )
-                              )
-                            }
-                            placeholder="Thickness"
-                          />
-                        </Table.Td>
+                        
                         <Table.Td style={{ padding: 8 }}>
                           <TextInput
                             value={String(it.length ?? "")}

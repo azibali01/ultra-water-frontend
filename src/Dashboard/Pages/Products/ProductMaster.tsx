@@ -288,7 +288,6 @@ export default function ProductMaster() {
                 </Table.Th>
                 <Table.Th style={{ padding: "8px" }}>Category</Table.Th>
                 <Table.Th style={{ padding: "8px" }}>Brand/Supplier</Table.Th>
-                <Table.Th style={{ padding: "8px" }}>Color</Table.Th>
                 <Table.Th style={{ width: "100px", padding: "8px" }}>
                   Opening Stock
                 </Table.Th>
@@ -296,7 +295,7 @@ export default function ProductMaster() {
                 <Table.Th style={{ width: "120px", padding: "8px" }}>
                   Status
                 </Table.Th>
-                <Table.Th style={{ width: "120px", padding: "8px" }}>
+                <Table.Th style={{ width: "150px", padding: "8px", textAlign: "left" }}>
                   Actions
                 </Table.Th>
               </Table.Tr>
@@ -322,10 +321,6 @@ export default function ProductMaster() {
 
                   <Table.Td style={{ padding: "8px" }}>
                     {p.brand ?? "-"}
-                  </Table.Td>
-
-                  <Table.Td style={{ padding: "8px" }}>
-                    {p.color ?? "-"}
                   </Table.Td>
                   <Table.Td style={{ padding: "8px" }}>
                     {formatNumber(p.openingStock ?? p.stock)}

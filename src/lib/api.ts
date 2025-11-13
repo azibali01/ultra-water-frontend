@@ -3,8 +3,8 @@ import axios from "axios";
 
 // Base axios instance - configure via Vite env VITE_API_BASE_URL or default to /api
 export const api = axios.create({
-  baseURL: "https://aluminium-backend.onrender.com/",
-  // baseURL: "http://localhost:3000",
+  // baseURL: "https://aluminium-backend.onrender.com/",
+  baseURL: "http://localhost:3000",
 
 });
 
@@ -346,14 +346,13 @@ export interface InventoryItemPayload {
   itemName?: string;
   description?: string;
   category?: string;
-  thickness?: number;
   costPrice?: number;
   salesRate?: number;
   discountAmount?: number;
   totalGrossAmount?: number;
   totalNetAmount?: number;
   brand?: string;
-  color?: string;
+
   discount: number;
   length?: number;
   amount?: number;
@@ -361,7 +360,7 @@ export interface InventoryItemPayload {
   quantity?: number;
   minimumStockLevel?: number;
   minStock?: number;
-  unit?: number | string;
+
   metadata?: Record<string, unknown>;
 }
 type paymentMethod = "Card" | "Cash";
@@ -403,8 +402,6 @@ export type PurchaseLineItem = {
   productName: string;
   quantity: number;
   rate: number;
-  color?: string;
-  thickness?: string;
   length?: string | number;
   amount?: number;
 };

@@ -43,14 +43,10 @@ import {
 export type LineItem = {
   _id?: string | number;
   itemName?: string;
-  unit: string;
   discount?: number;
   discountAmount?: number;
   salesRate?: number;
-  color?: string;
-  openingStock?: number;
   quantity?: number;
-  thickness?: number;
   amount: number;
   length?: number;
   totalGrossAmount: number;
@@ -72,6 +68,19 @@ function Quotation() {
     loadInventory,
     inventory,
   } = useDataContext();
+
+  // Local UI state
+  const [open, setOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [initialPayload, setInitialPayload] = useState<
+    Partial<SalesPayload> | null
+  >(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteTargetDisplay, setDeleteTargetDisplay] = useState<
+    string | null
+  >(null);
 
   // Products are always sourced from DataContext inventory, which ProductMaster keeps in sync.
 
@@ -106,18 +115,6 @@ function Quotation() {
     inventory,
     sales,
   ]);
-  const [open, setOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [initialPayload, setInitialPayload] =
-    useState<Partial<SalesPayload> | null>(null);
-  const [editingId, setEditingId] = useState<string | number | null>(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<string | number | null>(
-    null
-  );
-  const [deleteTargetDisplay, setDeleteTargetDisplay] = useState<string | null>(
-    null
-  );
 
   async function confirmDelete() {
     const id = deleteTarget;
@@ -344,7 +341,6 @@ function Quotation() {
         payload.products?.map((it) => ({
           _id: it._id ?? "",
           itemName: it.itemName ?? "",
-          unit: it.unit ?? "",
           discount:
             typeof (it as { discount?: unknown }).discount === "number"
               ? Math.floor(Number((it as { discount?: number }).discount))
@@ -357,10 +353,7 @@ function Quotation() {
                 )
               : 0,
           salesRate: Math.floor(it.salesRate ?? 0),
-          color: it.color ?? "",
-          openingStock: Math.floor(it.openingStock ?? 0),
           quantity: Math.floor(it.quantity ?? 0),
-          thickness: Math.floor(it.thickness ?? 0),
           amount:
             typeof (it as { amount?: unknown }).amount === "number"
               ? Math.floor(Number((it as { amount?: number }).amount))
@@ -561,9 +554,6 @@ function Quotation() {
                       salesRate: 0,
                       discount: 0,
                       discountAmount: 0,
-                      length: 0,
-                      color: "",
-                      unit: "pcs",
                       amount: 0,
                       totalGrossAmount: 0,
                       totalNetAmount: 0,
@@ -827,11 +817,6 @@ function Quotation() {
                                       (
                                         item: InventoryItemPayload
                                       ): LineItem => {
-                                        let unitVal = item.unit;
-                                        if (typeof unitVal === "number")
-                                          unitVal = String(unitVal);
-                                        if (typeof unitVal !== "string")
-                                          unitVal = "";
                                         const quantity = Number(
                                           item.quantity ?? 0
                                         );
@@ -863,31 +848,21 @@ function Quotation() {
                                           typeof (item as { length?: unknown })
                                             .length === "number"
                                             ? Number(
-                                                (item as { length?: number })
-                                                  .length
+                                                (item as { length?: number }).length
                                               )
                                             : 0;
                                         const gross = quantity * salesRate;
                                         return {
                                           _id: String(item._id ?? ""),
                                           itemName: item.itemName ?? "",
-                                          unit: unitVal,
                                           discount,
                                           discountAmount,
                                           salesRate,
-                                          color: item.color ?? "",
-                                          openingStock: Number(
-                                            item.openingStock ?? 0
-                                          ),
                                           quantity,
-                                          thickness: Number(
-                                            item.thickness ?? 0
-                                          ),
                                           amount: gross,
                                           length,
                                           totalGrossAmount: gross,
-                                          totalNetAmount:
-                                            gross - discountAmount,
+                                          totalNetAmount: gross - discountAmount,
                                         };
                                       }
                                     ),
@@ -968,26 +943,18 @@ function Quotation() {
             customers={customers}
             products={(inventory || []).map((p) => {
               const item = p as InventoryItemPayload;
-              let unitVal = item.unit;
-              if (typeof unitVal === "number") unitVal = String(unitVal);
-              if (typeof unitVal !== "string") unitVal = undefined;
               return {
                 ...item,
                 _id: String(item._id ?? ""),
                 itemName: item.itemName || "",
-                unit: unitVal,
-                discount: 0, // Always add discount for InventoryItemPayload
+                discount: 0,
                 discountAmount:
                   typeof item.discountAmount === "number"
                     ? item.discountAmount
                     : 0,
                 salesRate:
                   typeof item.salesRate === "number" ? item.salesRate : 0,
-                openingStock:
-                  typeof item.openingStock === "number" ? item.openingStock : 0,
                 quantity: typeof item.quantity === "number" ? item.quantity : 0,
-                thickness:
-                  typeof item.thickness === "number" ? item.thickness : 0,
                 amount: typeof item.amount === "number" ? item.amount : 0,
                 length: typeof item.length === "number" ? item.length : 0,
                 totalGrossAmount:
@@ -1001,7 +968,7 @@ function Quotation() {
                 metadata: item.metadata ?? {},
               };
             })}
-            initial={initialPayload ?? {}}
+            initial={(initialPayload ?? {}) as SalesPayload}
             submitting={creating}
             setSubmitting={setCreating}
             onSubmit={(payload: SalesPayload) => {

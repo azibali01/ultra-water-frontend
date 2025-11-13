@@ -28,9 +28,6 @@ export function ProductForm({ product, onClose }: Props) {
   const [form, setForm] = useState({
     itemName: product?.itemName || "",
     category: product?.category || "",
-    thickness: product?.thickness?.toString() ?? "",
-    unit: product?.unit || "",
-    color: product?.color || "",
     salesRate: product?.salesRate?.toString() ?? "",
     openingStock: product?.openingStock?.toString() ?? "",
     minimumStockLevel: product?.minimumStockLevel?.toString() ?? "",
@@ -55,9 +52,6 @@ export function ProductForm({ product, onClose }: Props) {
     const payload = {
       itemName: form.itemName.trim(),
       category: form.category || "General",
-      thickness: form.thickness === "" ? undefined : Number(form.thickness),
-      unit: form.unit || "ft",
-      color: form.color || "",
       salesRate: form.salesRate === "" ? undefined : Number(form.salesRate),
       openingStock:
         form.openingStock === "" ? undefined : Number(form.openingStock),
@@ -117,34 +111,7 @@ export function ProductForm({ product, onClose }: Props) {
         />
       </Group>
 
-      <Group grow mt="sm">
-        <NumberInput
-          label="Thickness"
-          value={form.thickness}
-          onChange={(v) => setForm({ ...form, thickness: v?.toString() ?? "" })}
-        />
-        <SafeSelect
-          label="Unit"
-          data={["ft", "pcs", "kg", "m", "sqft"]}
-          value={form.unit}
-          onChange={(v) => setForm({ ...form, unit: v || "" })}
-        />
-        <SafeSelect
-          label="Color"
-          required
-          data={[
-            { value: "DULL", label: "DULL" },
-            { value: "H23/PC-RAL", label: "H23/PC-RAL" },
-            { value: "SAHRA/BRN", label: "SAHRA/BRN" },
-            { value: "BLACK/MULTI", label: "BLACK/MULTI" },
-            { value: "WOODCOAT", label: "WOODCOAT" },
-          ]}
-          value={form.color}
-          onChange={(v) => setForm({ ...form, color: v || "" })}
-          placeholder="Select a color"
-          searchable
-        />
-      </Group>
+      
 
       <Group grow mt="sm">
         <NumberInput

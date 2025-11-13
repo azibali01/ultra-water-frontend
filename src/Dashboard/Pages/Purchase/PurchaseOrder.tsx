@@ -283,7 +283,7 @@ export default function PurchaseOrdersPage() {
                             customer: o.supplier?.name || "",
                             items: (o.products || []).map((it, idx) => ({
                               sr: idx + 1,
-                              section: `${it.productName}${it.thickness || it.color ? ` (Thickness: ${it.thickness ?? '-'}, Color: ${it.color ?? '-'})` : ''}`,
+                              section: `${it.productName}`,
                               quantity: it.quantity,
                               rate: Number(it.rate ?? 0),
                               amount: Number(it.amount ?? (it.quantity || 0) * (it.rate || 0)),

@@ -35,27 +35,7 @@ export function ProductDetails({ product }: Props) {
             </Text>
             <Text fw={600}>{product.brand || "-"}</Text>
           </Grid.Col>
-
-          <Grid.Col span={4}>
-            <Text size="xs" c="dimmed">
-              Thickness
-            </Text>
-            <Text fw={600}>{product.thickness ?? "-"}</Text>
-          </Grid.Col>
-
-          <Grid.Col span={4}>
-            <Text size="xs" c="dimmed">
-              Unit
-            </Text>
-            <Text fw={600}>{product.unit || "-"}</Text>
-          </Grid.Col>
-
-          <Grid.Col span={4}>
-            <Text size="xs" c="dimmed">
-              Color
-            </Text>
-            <Text fw={600}>{product.color ?? "-"}</Text>
-          </Grid.Col>
+ 
 
           <Divider />
 

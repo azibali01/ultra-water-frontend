@@ -17,3 +17,14 @@ export function formatDate(d: string | Date | undefined | null) {
   if (Number.isNaN(date.getTime())) return "-";
   return date.toLocaleDateString();
 }
+
+// Remove legacy parenthetical suffixes like " (Thickness: ..., Color: ...)" from product names
+export function sanitizeItemName(name?: string | null) {
+  if (!name) return "";
+  try {
+    // Strip any trailing " (Thickness: ... , Color: ... )" or similar parentheses at end
+    return String(name).replace(/\s*\([^)]*(Thickness\:|Color\:)[^)]*\)\s*$/i, "").trim();
+  } catch {
+    return String(name);
+  }
+}

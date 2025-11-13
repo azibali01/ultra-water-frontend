@@ -1,6 +1,8 @@
 import { type ReactNode, useState, useMemo } from "react";
 import { AppShell, Stack, NavLink, TextInput } from "@mantine/core";
 import { Link, Outlet, useLocation } from "react-router-dom";
+
+import logo from "/logo.png";
 import {
   LayoutDashboard,
   Package,
@@ -197,7 +199,7 @@ export default function DashboardLayout() {
 
   return (
     <AppShell
-      header={{ height: 40 }}
+      header={{ height: 60 }}
       navbar={{
         width: 240,
         breakpoint: "sm",
@@ -209,11 +211,73 @@ export default function DashboardLayout() {
       }}
     >
       {/* Header */}
-      <AppShell.Header
-        style={{ background: "#F5F5F5", padding: "16px", height: "40px" }}
-      >
-        {/* You can add header content here if needed */}
-      </AppShell.Header>
+<AppShell.Header
+  style={{
+    background: "#F5F5F5",
+    height: "60px",
+    display: "flex",
+    alignItems: "center",
+    borderBottom: "1px solid #e0e0e0",
+    padding: "0 16px",
+    overflow: "hidden",
+  }}
+>
+  {/* Left: Logo */}
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+     
+    }}
+  >
+    <img
+      src={logo} 
+      alt="Logo"
+      style={{
+        height: "160px",
+      
+       
+       
+      }}
+    />
+  </div>
+
+ 
+  <div
+    style={{
+      flexGrow: 1,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      position: "relative",
+      fontSize: "20px",
+      fontWeight: 600,
+      color: "#333",
+      fontFamily: "serif",
+    }}
+  >
+    <div
+      style={{
+        display: "inline-block",
+        paddingLeft: "100%",
+        animation: "scrollText 15s linear infinite",
+      }}
+    >
+      Developed by SemiColon
+    </div>
+  </div>
+
+  <style>
+    {`
+      @keyframes scrollText {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-100%); }
+      }
+    `}
+  </style>
+</AppShell.Header>
+
+
+
       {/* Sidebar */}
       {!isPrintMode && (
         <AppShell.Navbar p="md" bg="#F5F5F5">

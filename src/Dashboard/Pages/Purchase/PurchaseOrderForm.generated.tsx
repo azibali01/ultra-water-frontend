@@ -66,7 +66,7 @@ export function PurchaseOrderForm({
             .slice(0, 10)
       : ""
   );
-  const { inventory = [], colors = [], suppliers = [] } = useDataContext();
+  const { inventory = [], suppliers = [] } = useDataContext();
   // Support both supplierId and supplier object for edit modal prefill
   function isSupplierObject(obj: unknown): obj is { _id: string } {
     return (
@@ -95,21 +95,18 @@ export function PurchaseOrderForm({
   const [status] = useState("Draft");
   const [products, setProducts] = useState<PurchaseLineItem[]>(
     initialValues?.products && initialValues.products.length > 0
-      ? initialValues.products.map((p) => ({
+          ? initialValues.products.map((p) => ({
           id: p.id || crypto.randomUUID(),
           productId: p.productId || "",
           productName: p.productName || "Select product",
           code: p.code || "",
-          unit: p.unit || "",
           percent: p.percent ?? 0,
           quantity: Number(p.quantity) || 1,
           rate: Number(p.rate) || 0,
-          color: p.color || "",
           grossAmount: p.grossAmount ?? 0,
           discountAmount: p.discountAmount ?? 0,
           netAmount: p.netAmount ?? 0,
-          thickness: p.thickness || "",
-          length: p.length ?? 0,
+          // length removed
           amount: p.amount ?? 0,
         }))
       : [
@@ -118,26 +115,22 @@ export function PurchaseOrderForm({
             productId: "",
             productName: "Select product",
             code: "",
-            unit: "",
             percent: 0,
             quantity: 1,
             rate: 0,
-            color: "",
             grossAmount: 0,
             discountAmount: 0,
             netAmount: 0,
-            thickness: "",
-            length: 0,
+            // length removed
             amount: 0,
           },
         ]
   );
   const subTotal = useMemo(() => {
     return products.reduce((s, i) => {
-      const length = Number(i.length) || 1;
       const rate = Number(i.rate) || 0;
       const qty = Number(i.quantity) || 0;
-      return s + length * rate * qty;
+      return s + rate * qty;
     }, 0);
   }, [products]);
   const total = subTotal;
@@ -163,16 +156,14 @@ export function PurchaseOrderForm({
           productId: inv?._id || p.productId || "",
           productName: p.productName || "Select product",
           code: p.code || "",
-          unit: inv?.unit || p.unit || "",
+          // `unit` removed from UI; do not include in payload
           percent: Math.floor(p.percent ?? 0),
           quantity: Math.floor(Number(p.quantity) || 1),
           rate: Math.floor(Number(p.rate) || 0),
-          color: p.color || inv?.color || "",
           grossAmount: Math.floor(p.grossAmount ?? 0),
           discountAmount: Math.floor(p.discountAmount ?? 0),
           netAmount: Math.floor(p.netAmount ?? 0),
-          thickness: p.thickness || inv?.thickness?.toString() || "",
-          length: Math.floor(Number(p.length ?? 0)),
+          // length removed
           amount: Math.floor(Number(p.amount ?? 0)),
         };
       }),
@@ -370,16 +361,13 @@ export function PurchaseOrderForm({
                       productId: "",
                       productName: "Select product",
                       code: "",
-                      unit: "pcs",
                       percent: 0,
                       quantity: 1,
                       rate: 0,
-                      color: "",
                       grossAmount: 0,
                       discountAmount: 0,
                       netAmount: 0,
-                      thickness: "",
-                      length: 0,
+                      // length removed
                       amount: 0,
                     },
                   ])
@@ -395,16 +383,7 @@ export function PurchaseOrderForm({
                     <Table.Th style={{ textAlign: "left", padding: 8 }}>
                       Item
                     </Table.Th>
-                    <Table.Th
-                      style={{ textAlign: "left", padding: 8, width: 120 }}
-                    >
-                      Color
-                    </Table.Th>
-                    <Table.Th
-                      style={{ textAlign: "left", padding: 8, width: 120 }}
-                    >
-                      Thickness
-                    </Table.Th>
+                    
                     <Table.Th
                       style={{ textAlign: "left", padding: 8, width: 120 }}
                     >
@@ -445,13 +424,7 @@ export function PurchaseOrderForm({
                             searchable
                             data={inventory.map((p: InventoryItem) => ({
                               value: String(p._id),
-                              label: `${p.itemName}${
-                                p.thickness || p.color
-                                  ? ` (Thickness: ${
-                                      p.thickness ?? "-"
-                                    }, Color: ${p.color ?? "-"})`
-                                  : ""
-                              }`,
+                              label: p.itemName,
                             }))}
                             value={
                               it.productName &&
@@ -475,10 +448,7 @@ export function PurchaseOrderForm({
                                         ...row,
                                         productName: prod.itemName || "",
                                         rate: prod.salesRate || 0,
-                                        color: prod.color || undefined,
-                                        thickness: prod.thickness
-                                          ? String(prod.thickness)
-                                          : undefined,
+                                        length: prod.length ?? undefined,
                                       }
                                     : row
                                 )
@@ -487,55 +457,22 @@ export function PurchaseOrderForm({
                             placeholder="Select product"
                           />
                         </Table.Td>
-                        <Table.Td style={{ padding: 8 }}>
-                          <Select
-                            placeholder="Color"
-                            data={colors.map((c) => ({
-                              value: c.name,
-                              label: c.name,
-                            }))}
-                            value={it.color}
-                            onChange={(v) =>
-                              setProducts((prev) =>
-                                prev.map((row) =>
-                                  row.id === it.id
-                                    ? { ...row, color: v ?? undefined }
-                                    : row
-                                )
-                              )
-                            }
-                          />
-                        </Table.Td>
-                        <Table.Td style={{ padding: 8 }}>
-                          <TextInput
-                            value={it.thickness ?? ""}
-                            onChange={(e) =>
-                              setProducts((prev) =>
-                                prev.map((row) =>
-                                  row.id === it.id
-                                    ? { ...row, thickness: e.target.value }
-                                    : row
-                                )
-                              )
-                            }
-                            placeholder="Thickness"
-                          />
-                        </Table.Td>
-                        <Table.Td style={{ padding: 8 }}>
-                          <TextInput
-                            value={String(it.length ?? "")}
-                            onChange={(e) =>
-                              setProducts((prev) =>
-                                prev.map((row) =>
-                                  row.id === it.id
-                                    ? { ...row, length: e.target.value }
-                                    : row
-                                )
-                              )
-                            }
-                            placeholder="Length"
-                          />
-                        </Table.Td>
+                        
+                            <Table.Td style={{ padding: 8 }}>
+                              <TextInput
+                                value={String(it.length ?? "")}
+                                onChange={(e) =>
+                                  setProducts((prev) =>
+                                    prev.map((row) =>
+                                      row.id === it.id
+                                        ? { ...row, length: e.target.value }
+                                        : row
+                                    )
+                                  )
+                                }
+                                placeholder="Length"
+                              />
+                            </Table.Td>
                         <Table.Td style={{ padding: 8, textAlign: "right" }}>
                           <NumberInput
                             value={it.quantity === 0 ? "" : it.quantity}

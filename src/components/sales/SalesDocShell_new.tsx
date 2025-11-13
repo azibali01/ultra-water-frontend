@@ -56,14 +56,10 @@ export default function SalesDocShell({
   const [items, setItems] = useState<LineItem[]>([
     {
       itemName: "",
-      unit: "pcs",
       quantity: 1,
       salesRate: 0,
       discount: 0,
       discountAmount: 0,
-      color: "",
-      openingStock: 0,
-      thickness: 0,
       amount: 0,
       length: 0,
       totalGrossAmount: 0,

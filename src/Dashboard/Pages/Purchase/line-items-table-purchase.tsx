@@ -24,7 +24,6 @@ export function PurchaseLineItemsTable({
     ? inventory.map((p: InventoryItem) => ({
         id: String(p._id ?? ""),
         name: p.itemName ?? "",
-        unit: p.unit,
         salesRate: p.salesRate || 0,
       }))
     : [];
@@ -44,7 +43,6 @@ export function PurchaseLineItemsTable({
     const p = products[0] ?? {
       id: "",
       name: "New Product",
-      unit: "pcs",
       salesRate: 0,
     };
     const rate = p.salesRate ?? 0;
@@ -53,11 +51,8 @@ export function PurchaseLineItemsTable({
       productId: String(p.id),
       productName: p.name || "",
       code: undefined,
-      unit: p.unit || "pcs",
       quantity: 1,
       rate,
-      color: undefined,
-      thickness: undefined,
       length: undefined,
       grossAmount: rate * 1,
       percent: 0,
@@ -99,24 +94,20 @@ export function PurchaseLineItemsTable({
   if (error) {
     return <div role="alert" aria-live="assertive" style={{ color: 'red', padding: 12 }}>Error loading inventory data.</div>;
   }
-  if (loading) {
-    return <div role="status" aria-live="polite" style={{ color: '#1976d2', padding: 12 }}>Loading inventory...</div>;
-  }
-  return (
-    <div>
-      <div
-        style={{
-          overflowX: "auto",
-          border: "1px solid #1976d2",
-          borderRadius: 6,
-        }}
+                      if (prod) {
+                        updateRow(row.id, {
+                          productId: String(prod._id ?? ""),
+                          productName: prod.itemName ?? "",
+                          code: undefined,
+                          rate: Number(prod.salesRate ?? 0),
+                          length: undefined,
+                        });
         tabIndex={0}
-        aria-label="Purchase Line Items Table"
-      >
-        <Table
-          striped
-          highlightOnHover
-          verticalSpacing="sm"
+                        updateRow(row.id, {
+                          productId: String(productId || ""),
+                          productName: p?.name || "",
+                          code: undefined,
+                        });
           style={{ width: "100%" }}
         >
           <Table.Thead>
@@ -124,12 +115,7 @@ export function PurchaseLineItemsTable({
               <Table.Th style={{ textAlign: "left", padding: 8 }}>
                 Item
               </Table.Th>
-              <Table.Th style={{ textAlign: "left", padding: 8, width: 120 }}>
-                Color
-              </Table.Th>
-              <Table.Th style={{ textAlign: "left", padding: 8, width: 100 }}>
-                Thickness
-              </Table.Th>
+              
               <Table.Th style={{ textAlign: "left", padding: 8, width: 100 }}>
                 Length
               </Table.Th>

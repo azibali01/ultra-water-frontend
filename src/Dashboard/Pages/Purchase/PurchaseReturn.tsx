@@ -488,7 +488,7 @@ function ReturnForm({
 }: ReturnFormProps & { setOpen?: (open: boolean) => void }) {
   const {
     inventory = [],
-    colors = [],
+
     purchaseReturns = [],
   } = useDataContext();
 
@@ -608,9 +608,6 @@ function ReturnForm({
           quantity?: number;
           price?: number;
           rate?: number;
-          unit?: string | number;
-          color?: string;
-          thickness?: string | number;
           length?: string | number;
         }) => ({
           id: `${Math.random()}`,
@@ -618,13 +615,6 @@ function ReturnForm({
           productName: it.sku || it.productName || "",
           quantity: it.quantity || 0,
           rate: it.price ?? it.rate ?? 0,
-          unit:
-            typeof it.unit === "string" ? it.unit : String(it.unit ?? "pcs"),
-          color: it.color,
-          thickness:
-            typeof it.thickness === "number"
-              ? String(it.thickness)
-              : it.thickness,
           length: typeof it.length === "number" ? String(it.length) : it.length,
           grossAmount: 0,
           percent: 0,
@@ -645,9 +635,6 @@ function ReturnForm({
         productName: it.productName,
         quantity: 1,
         rate: 0,
-        unit: typeof it.unit === "string" ? it.unit : "pcs",
-        color: it.color,
-        thickness: it.thickness,
         length: 0,
         grossAmount: 0,
         percent: 0,
@@ -684,9 +671,6 @@ function ReturnForm({
         productName: it.productName,
         quantity: 0,
         rate: it.rate ?? 0,
-        unit: it.unit ?? "",
-        color: it.color,
-        thickness: it.thickness,
         length: it.length,
         grossAmount: 0,
         percent: 0,
@@ -738,9 +722,7 @@ function ReturnForm({
           itemName: it.productName,
           quantity: it.quantity,
           salesRate: it.rate,
-          color: it.color,
-          thickness: it.thickness ? Number(it.thickness) : undefined,
-          discount: 0, // Add default discount value or map from it.discount if available
+          discount: 0,
         })),
       subtotal: totals.sub,
       total: totals.total,
@@ -789,11 +771,6 @@ function ReturnForm({
             itemName: it.productName ?? it.itemName ?? "",
             quantity: it.quantity ?? 0,
             salesRate: it.rate ?? it.salesRate ?? 0,
-            color: it.color,
-            thickness:
-              typeof it.thickness === "string"
-                ? Number(it.thickness)
-                : it.thickness,
           })),
           subtotal: confirmPayload.subtotal,
           total: confirmPayload.total,
@@ -905,7 +882,6 @@ function ReturnForm({
           items={items}
           setItems={setItems}
           inventory={inventory as any}
-          colors={colors}
           addRowLabel="Add Return Item"
         />
       </div>

@@ -1,5 +1,6 @@
 import { useDataContext } from "../../Context/DataContext";
 import { Table, Title, Text, Group, Select, Pagination } from "@mantine/core";
+import { sanitizeItemName } from "../../../lib/format-utils";
 import { useMemo, useState } from "react";
 
 function getLastTransaction(
@@ -34,7 +35,7 @@ function getLastTransaction(
 }
 
 export default function Stocksummary() {
-  const { inventory, sales, purchases } = useDataContext();
+  const { inventory = [], sales = [], purchases = [] } = useDataContext();
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState<string>("25");
@@ -92,10 +93,7 @@ export default function Stocksummary() {
             );
             return (
               <Table.Tr key={item._id}>
-                <Table.Td>
-                  {item.itemName} (Thickness: {item.thickness ?? "-"}, Color:{" "}
-                  {item.color ?? "-"})
-                </Table.Td>
+                <Table.Td>{sanitizeItemName(item.itemName)}</Table.Td>
                 <Table.Td>{item.openingStock ?? item.stock ?? 0}</Table.Td>
                 <Table.Td>
                   {lastSale ? (

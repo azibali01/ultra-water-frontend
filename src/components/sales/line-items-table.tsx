@@ -1,23 +1,19 @@
 import { useCallback } from "react";
-import { NumberInput, TextInput, Button, Select } from "@mantine/core";
+import { NumberInput, TextInput, Button, Select, } from "@mantine/core";
 
 import Table from "../../lib/AppTable";
 import type { InventoryItem } from "../../Dashboard/Context/DataContext";
 import { IconTrash } from "@tabler/icons-react";
+import { sanitizeItemName } from "../../lib/format-utils";
 
 export type LineItem = {
   _id?: string | number;
   itemName?: string;
-  unit: string;
   discount?: number;
   discountAmount?: number;
   salesRate?: number;
-  color?: string;
-  openingStock?: number;
   quantity?: number;
-  thickness?: number;
   amount: number;
-  length?: number;
   totalGrossAmount: number;
   totalNetAmount: number;
 };
@@ -43,32 +39,24 @@ export function LineItemsTable({
     <Table withColumnBorders>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th style={{ width: 300 }}>Item</Table.Th>
-          <Table.Th style={{ width: 140 }}>Color</Table.Th>
-          <Table.Th style={{ width: 120 }}>Thickness</Table.Th>
-          <Table.Th style={{ width: 120 }}>Length</Table.Th>
-
+          <Table.Th style={{ width: 350 }}>Item</Table.Th>
           <Table.Th style={{ width: 120 }}>Qty</Table.Th>
           <Table.Th style={{ width: 120 }}>Rate</Table.Th>
           <Table.Th style={{ width: 120 }}>Gross</Table.Th>
           <Table.Th style={{ width: 120 }}>%</Table.Th>
           <Table.Th style={{ width: 120 }}>Discount</Table.Th>
           <Table.Th style={{ width: 120 }}>Net</Table.Th>
-
           <Table.Th style={{ width: 120 }}>Amount</Table.Th>
           <Table.Th style={{ textAlign: "left" }}>Remove</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
         {items.map((it, idx) => {
-          // Amount = Length * Quantity * Rate
-          const length = Number(it.length || 0);
           const quantity = Number(it.quantity || 0);
           const rate = Number(it.salesRate || 0);
-          const gross = length * quantity * rate;
+          const gross = quantity * rate;
           const discountAmount = it.discountAmount ?? 0;
           const net = gross - discountAmount;
-          // GST removed per request — line total is net amount (no tax)
 
           return (
             <Table.Tr key={`line-${idx}`}>
@@ -78,9 +66,7 @@ export function LineItemsTable({
                     value={String(it._id || "")}
                     data={products.map((p) => ({
                       value: String(p._id),
-                      label: `${p.itemName} (Thickness: ${
-                        p.thickness ?? "-"
-                      }, Color: ${p.color ?? "-"})`,
+                      label: sanitizeItemName(String(p.itemName)),
                     }))}
                     onChange={(val: string | null) => {
                       const prod = products.find(
@@ -90,11 +76,7 @@ export function LineItemsTable({
                         update(idx, {
                           _id: prod._id,
                           itemName: prod.itemName || "",
-                          unit: prod.unit ?? "",
                           salesRate: Number(prod.salesRate ?? 0),
-                          color: prod.color ?? "",
-                          thickness: Number(prod.thickness ?? 0),
-                          openingStock: prod.openingStock ?? 0,
                           amount: 0,
                           totalGrossAmount: 0,
                           totalNetAmount: 0,
@@ -118,59 +100,22 @@ export function LineItemsTable({
                         itemName: e.currentTarget.value,
                       })
                     }
-                    placeholder="Product Name (Thickness, Color)"
+                    placeholder="Product Name"
                   />
                 )}
               </Table.Td>
 
-              <Table.Td>
-                <TextInput
-                  value={it.color ?? ""}
-                  placeholder="Color"
-                  onChange={(e) =>
-                    update(idx, { color: e.currentTarget.value })
-                  }
-                />
-              </Table.Td>
-
-              <Table.Td>
-                <TextInput
-                  value={String(it.thickness ?? "")}
-                  placeholder="Thickness"
-                  onChange={(e) =>
-                    update(idx, {
-                      thickness: Number(e.currentTarget.value),
-                    })
-                  }
-                />
-              </Table.Td>
-
-              <Table.Td>
-                <TextInput
-                  value={String(it.length ?? "")}
-                  placeholder="Length"
-                  onChange={(e) => {
-                    const length = Number(e.currentTarget.value);
-                    const quantity = Number(it.quantity || 0);
-                    const rate = Number(it.salesRate || 0);
-                    update(idx, {
-                      length,
-                      amount: length * quantity * rate,
-                    });
-                  }}
-                />
-              </Table.Td>
+              {/* length removed */}
 
               <Table.Td>
                 <NumberInput
                   value={it.quantity}
                   onChange={(v: number | string | undefined) => {
                     const quantity = Number(v || 0);
-                    const length = Number(it.length || 0);
                     const rate = Number(it.salesRate || 0);
                     update(idx, {
                       quantity,
-                      amount: length * quantity * rate,
+                      amount: quantity * rate,
                     });
                   }}
                 />
@@ -181,11 +126,10 @@ export function LineItemsTable({
                   value={it.salesRate}
                   onChange={(v: number | string | undefined) => {
                     const rate = Number(v || 0);
-                    const length = Number(it.length || 0);
                     const quantity = Number(it.quantity || 0);
                     update(idx, {
                       salesRate: rate,
-                      amount: length * quantity * rate,
+                      amount: quantity * rate,
                     });
                   }}
                 />
@@ -212,7 +156,6 @@ export function LineItemsTable({
                   value={it.discountAmount ?? 0}
                   onChange={(v: number | string | undefined) => {
                     const amt = Number(v || 0);
-                    // When user edits discountAmount, update both fields to keep them in sync
                     const pct = gross > 0 ? (amt / gross) * 100 : 0;
                     update(idx, {
                       discountAmount: amt,
@@ -224,7 +167,7 @@ export function LineItemsTable({
 
               <Table.Td>{net.toFixed(2)}</Table.Td>
 
-              <Table.Td>{(length * quantity * rate).toFixed(2)}</Table.Td>
+              <Table.Td>{(quantity * rate).toFixed(2)}</Table.Td>
 
               <Table.Td>
                 <div style={{ display: "flex", justifyContent: "flex-start" }}>

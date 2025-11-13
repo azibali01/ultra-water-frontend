@@ -1,5 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, {
   useContext,
   useState,
@@ -18,9 +16,8 @@ export interface InventoryItem {
   _id: string;
   itemName?: string;
   category?: string;
-  unit?: string;
-  color?: string;
-  thickness?: number;
+  
+  length?: string | number;
   salesRate?: number;
   openingStock?: number;
   minimumStockLevel?: number;
@@ -78,8 +75,6 @@ export interface PurchaseRecord {
     productName: string;
     quantity: number;
     rate: number;
-    color?: string;
-    thickness?: string;
     length?: string | number;
     amount?: number;
     inventoryId?: string;
@@ -103,8 +98,6 @@ export interface PurchaseInvoiceRecord {
     productName: string;
     quantity: number;
     rate: number;
-    color?: string;
-    thickness?: string;
     length?: string | number;
     amount?: number;
     inventoryId?: string;
@@ -457,7 +450,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
       const mapped = (data || []).map((item) => ({
         ...item,
         _id: item._id ? String(item._id) : "",
-        unit: item.unit !== undefined ? String(item.unit) : undefined,
+       
       }));
       setInventory(mapped);
       loaderLoadedRef.current["inventory"] = true;
