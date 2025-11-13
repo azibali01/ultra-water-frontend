@@ -1,6 +1,7 @@
 import { type ReactNode, useState, useMemo } from "react";
-import { AppShell, Stack, NavLink, TextInput } from "@mantine/core";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { AppShell, Stack, NavLink, TextInput, Button } from "@mantine/core";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../Auth/Context/AuthContext";
 
 import logo from "/logo.png";
 import {
@@ -11,6 +12,7 @@ import {
   Receipt,
   Wallet,
   FileBarChart,
+  LogOut,
 } from "lucide-react";
 
 type MenuItem = {
@@ -158,7 +160,14 @@ const navigation: MenuItem[] = [
 
 export default function DashboardLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [search, setSearch] = useState("");
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth");
+  };
 
   // Helper to flatten all menu items for search
 
@@ -361,6 +370,30 @@ export default function DashboardLayout() {
                 />
               );
             })}
+
+            {/* Logout Button */}
+            <Button
+              fullWidth
+              variant="subtle"
+              color="red"
+              leftSection={<LogOut size={16} />}
+              onClick={handleLogout}
+              mt="auto"
+              styles={{
+                root: {
+                  color: "#d32f2f",
+                  fontWeight: 600,
+                  fontSize: "14px",
+                  height: "40px",
+                  justifyContent: "flex-start",
+                  "&:hover": {
+                    backgroundColor: "#ffebee",
+                  },
+                },
+              }}
+            >
+              Logout
+            </Button>
           </Stack>
         </AppShell.Navbar>
       )}

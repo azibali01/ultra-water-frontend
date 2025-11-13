@@ -274,18 +274,20 @@ export default function PurchaseOrdersPage() {
                         onClick={() => {
                           const d: InvoiceData = {
                             title: "Purchase Order",
-                            companyName: "Seven Star Traders",
-                            addressLines: [
-                              "Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan",
-                            ],
+                            companyName: "Ultra Water Technologies",
+                            addressLines: [],
                             invoiceNo: String(o.poNumber),
                             date: String(o.poDate),
                             customer: o.supplier?.name || "",
                             items: (o.products || []).map((it, idx) => ({
                               sr: idx + 1,
+                              itemName: `${it.productName}`,
                               section: `${it.productName}`,
+                              description: `${it.productName}`,
+                              qty: it.quantity,
                               quantity: it.quantity,
                               rate: Number(it.rate ?? 0),
+                              salesRate: Number(it.rate ?? 0),
                               amount: Number(it.amount ?? (it.quantity || 0) * (it.rate || 0)),
                             })),
                             totals: {

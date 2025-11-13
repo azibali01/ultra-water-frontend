@@ -232,10 +232,8 @@ export default function ReceiptsPage() {
                               // Print logic
                               const invoiceData: InvoiceData = {
                                 title: "Receipt Voucher",
-                                companyName: "Seven Star Traders",
-                                addressLines: [
-                                  "Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan",
-                                ],
+                                companyName: "Ultra Water Technologies",
+                                addressLines: [],
                                 invoiceNo: v.voucherNumber,
                                 date:
                                   typeof v.voucherDate === "string"
@@ -244,7 +242,13 @@ export default function ReceiptsPage() {
                                 items: [
                                   {
                                     sr: 1,
+                                    itemName: `Received From: ${v.receivedFrom}`,
                                     section: `Received From: ${v.receivedFrom}`,
+                                    description: `Received From: ${v.receivedFrom}`,
+                                    qty: 1,
+                                    quantity: 1,
+                                    rate: v.amount,
+                                    salesRate: v.amount,
                                     amount: v.amount,
                                   },
                                 ],

@@ -26,16 +26,20 @@ import openPrintWindow from "../../../components/print/printWindow";
 function getInvoicePrintData(inv: PurchaseInvoiceTableRow) {
   return {
     title: "Purchase Invoice",
-    companyName: "Seven Star Traders",
-    addressLines: ["Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan"],
+    companyName: "Ultra Water Technologies",
+    addressLines: [],
     invoiceNo: String(inv.purchaseInvoiceNumber),
     date: String(inv.invoiceDate),
     customer: inv.supplier?.name || "",
     items: (inv.products || []).map((it, idx) => ({
       sr: idx + 1,
+      itemName: `${it.productName}`,
       section: `${it.productName}`,
+      description: `${it.productName}`,
+      qty: it.quantity,
       quantity: it.quantity,
       rate: Number(it.rate ?? 0),
+      salesRate: Number(it.rate ?? 0),
       amount: Number(it.amount ?? (it.quantity || 0) * (it.rate || 0)),
     })),
     totals: {

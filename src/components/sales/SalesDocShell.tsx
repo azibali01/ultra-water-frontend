@@ -82,8 +82,12 @@ export default function SalesDocShell({
       : new Date().toISOString().slice(0, 10)
   );
 
-  // Always start with empty customer field when modal opens
-  const [customerId, setCustomerId] = useState<string>("");
+  // Initialize customer from initial payload if provided
+  const [customerId, setCustomerId] = useState<string>(
+    initial?.customer && typeof initial.customer === "object" && "name" in initial.customer
+      ? initial.customer.name ?? ""
+      : ""
+  );
   const [remarks, setRemarks] = useState<string>(
     initial && typeof initial.remarks === "string" ? initial.remarks : ""
   );
@@ -108,40 +112,37 @@ export default function SalesDocShell({
     },
   ]);
 
-  // Reset customer and items when modal opens (when initial changes)
+  // Reset fields when modal opens (when initial changes)
   useEffect(() => {
-    // Helper to get supplier name for selected product
-    const getSupplierForItem = (item: LineItem) => {
-      if (!item || !item.itemName) return "";
-      const product = products.find(
-        (p) => p.itemName === item.itemName || p._id === item._id
-      );
-      if (product && (product as any).supplier) {
-        const supplier = (product as any).supplier;
-        if (typeof supplier === "string") return supplier;
-        if (typeof supplier === "object" && supplier.name) return supplier.name;
+    // Update docNo if initial changes
+    if (initial?.docNo) {
+      setDocNo(initial.docNo);
+    }
+    
+    // Update docDate if initial changes
+    if (initial?.docDate) {
+      setDocDate(String(initial.docDate));
+    }
+    
+    // Update remarks if initial changes
+    if (initial?.remarks !== undefined) {
+      setRemarks(String(initial.remarks));
+    }
+    
+    // Set customer from initial if provided
+    if (initial?.customer) {
+      if (typeof initial.customer === "object" && "name" in initial.customer) {
+        setCustomerId(initial.customer.name ?? "");
+      } else if (typeof initial.customer === "string") {
+        setCustomerId(initial.customer);
       }
-      if (product && (product as any).supplierName) {
-        return (product as any).supplierName;
-      }
-      return "";
-    };
-    setCustomerId("");
+    }
+    
     if (
       initial?.items &&
       Array.isArray(initial.items) &&
       initial.items.length > 0
     ) {
-      {
-        /* Supplier label for selected product (first item) */
-      }
-      {
-        items && items.length > 0 && getSupplierForItem(items[0]) ? (
-          <Text size="sm" color="dimmed" mb={8}>
-            <b>Supplier:</b> {getSupplierForItem(items[0])}
-          </Text>
-        ) : null;
-      }
       setItems(
         (initial.items as LineItem[]).map((it) => ({
           _id:
@@ -205,7 +206,7 @@ export default function SalesDocShell({
         },
       ]);
     }
-  }, [initial, products]);
+  }, [initial]);
 
   const status = mode === "Quotation" ? "Draft" : "Confirmed";
 
@@ -720,10 +721,8 @@ export default function SalesDocShell({
             try {
               const data: InvoiceData = {
                 title: mode === "Invoice" ? "Sales Invoice" : "Quotation",
-                companyName: "Seven Star Traders",
-                addressLines: [
-                  "Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan",
-                ],
+                companyName: "Ultra Water Technologies",
+                addressLines: [],
                 invoiceNo: docNo,
                 date: docDate,
                 ms: selectedCustomer?.name ?? undefined,
@@ -734,10 +733,6 @@ export default function SalesDocShell({
                   subtotal: totals.sub,
                   total: totals.total ?? totals.totalNetAmount,
                 },
-                footerNotes: [
-                  "Extrusion & Powder Coating",
-                  "Aluminum Window, Door, Profiles & All Kinds of Pipes",
-                ],
               };
               openPrintWindow(data);
             } catch (err) {

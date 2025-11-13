@@ -1,12 +1,43 @@
 import axios from "axios";
 
 
-// Base axios instance - configure via Vite env VITE_API_BASE_URL or default to /api
-export const api = axios.create({
-  baseURL: "https://ultra-water-backend.onrender.com",
-  // baseURL: "http://localhost:3000",
+// Base axios instance - configure via Vite env VITE_API_URL or fallback to the production URL
+const API_BASE = (import.meta.env.VITE_API_URL as string) || "https://ultra-water-backend.onrender.com";
 
+export const api = axios.create({
+  baseURL: API_BASE,
 });
+
+// Attach Authorization header when token is present
+api.interceptors.request.use(
+  (config) => {
+    try {
+      const token = localStorage.getItem("ultra-token");
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (e) {
+      // ignore localStorage errors in SSR/non-browser environments
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Optional: handle 401 globally (could redirect to /auth)
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const status = err?.response?.status;
+    if (status === 401) {
+      try {
+        localStorage.removeItem("ultra-token");
+      } catch { }
+      // let the app decide navigation where Router is available
+    }
+    return Promise.reject(err);
+  }
+);
 
 
 

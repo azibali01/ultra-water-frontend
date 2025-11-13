@@ -8,7 +8,7 @@ const AuthLayout = () => {
     <Stack
       justify="center"
       align="center"
-      bg={"#2a2f38"}
+      bg={"#F8F9FA"}
       w="100vw"
       h="100vh"
       px={isSmallScreen ? "md" : "xl"}

@@ -584,20 +584,28 @@ export default function SaleInvoice() {
                           leftSection={<IconPrinter size={16} />}
                           onClick={() => {
                             // Print logic: build invoice data and open print window
-                            const items = (inv.products ?? []).map((it) => ({
+                            const invWithItems = inv as SaleRecordWithItems;
+                            const sourceItems = (invWithItems.items && invWithItems.items.length > 0
+                              ? invWithItems.items
+                              : invWithItems.products) ?? [];
+                            const items = sourceItems.map((it: any, idx: number) => ({
                               ...it,
-                              amount: (it.quantity ?? 0) * (it.salesRate ?? 0),
-                              totalGrossAmount:
-                                (it.quantity ?? 0) * (it.salesRate ?? 0),
-                              totalNetAmount:
-                                (it.quantity ?? 0) * (it.salesRate ?? 0),
+                              sr: idx + 1,
+                              itemName: it.itemName ?? it.productName ?? it.name ?? "",
+                              description: it.itemName ?? it.productName ?? it.name ?? "",
+                              section: it.itemName ?? it.productName ?? it.name ?? "",
+                              qty: it.quantity ?? it.qty ?? 0,
+                              quantity: it.quantity ?? it.qty ?? 0,
+                              rate: it.salesRate ?? it.rate ?? it.price ?? 0,
+                              salesRate: it.salesRate ?? it.rate ?? it.price ?? 0,
+                              amount: (it.quantity ?? it.qty ?? 0) * (it.salesRate ?? it.rate ?? it.price ?? 0),
+                              totalGrossAmount: (it.quantity ?? it.qty ?? 0) * (it.salesRate ?? it.rate ?? it.price ?? 0),
+                              totalNetAmount: (it.quantity ?? it.qty ?? 0) * (it.salesRate ?? it.rate ?? it.price ?? 0),
                             }));
                             openPrintWindow({
                               title: "Sales Invoice",
-                              companyName: "Seven Star Traders",
-                              addressLines: [
-                                "Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan",
-                              ],
+                              companyName: "Ultra Water Technologies",
+                              addressLines: [],
                               invoiceNo: String(
                                 inv.invoiceNumber ?? inv.id ?? ""
                               ),
@@ -624,11 +632,10 @@ export default function SaleInvoice() {
                               totals: {
                                 subtotal: inv.subTotal ?? 0,
                                 total: inv.totalNetAmount ?? 0,
+                                totalGrossAmount: inv.totalGrossAmount ?? 0,
+                                totalDiscountAmount: inv.totalDiscount ?? 0,
+                                totalNetAmount: inv.totalNetAmount ?? 0,
                               },
-                              footerNotes: [
-                                "Extrusion & Powder Coating",
-                                "Aluminum Window, Door, Profiles & All Kinds of Pipes",
-                              ],
                             });
                           }}
                         >

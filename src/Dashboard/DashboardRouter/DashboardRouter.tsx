@@ -1,5 +1,6 @@
 import type { RouteObject } from "react-router";
 import DashboardLayout from "../DashboardLayout/DashboardLayout";
+import ProtectedRoute from "../../Auth/ProtectedRoute";
 import Dashboard from "../Pages/Dashboard";
 import SalesReturnPage from "../Pages/Sales/Salereturn";
 import ProductMaster from "../Pages/Products/ProductMaster";
@@ -29,7 +30,11 @@ import Stocksummary from "../Pages/Reports/Stocksummary";
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "dashboard",

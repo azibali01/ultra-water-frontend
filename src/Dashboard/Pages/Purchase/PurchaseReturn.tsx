@@ -320,18 +320,20 @@ export default function PurchaseReturnPage() {
                                 )
                                 .map((it, idx) => ({
                                   sr: idx + 1,
+                                  itemName: String(it.itemName),
                                   section: String(it.itemName),
+                                  description: String(it.itemName),
+                                  qty: it.quantity,
                                   quantity: it.quantity,
                                   rate: it.salesRate || 0,
+                                  salesRate: it.salesRate || 0,
                                   amount:
                                     (it.quantity || 0) * (it.salesRate || 0),
                                 }));
                               const payload: InvoiceData = {
                                 title: "Purchase Return",
-                                companyName: "Seven Star Traders",
-                                addressLines: [
-                                  "Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan",
-                                ],
+                                companyName: "Ultra Water Technologies",
+                                addressLines: [],
                                 invoiceNo: r.returnNumber,
                                 date: String(r.date),
                                 customer: r.supplier,
@@ -340,7 +342,6 @@ export default function PurchaseReturnPage() {
                                   subtotal: full?.subtotal ?? r.total,
                                   total: full?.total ?? r.total,
                                 },
-                                footerNotes: ["Purchase Return Document"],
                               };
                               openPrintWindow(payload);
                             }}
@@ -735,21 +736,24 @@ function ReturnForm({
   function handlePrintDraft() {
     const payload: InvoiceData = {
       title: "Purchase Return (Draft)",
-      companyName: "Seven Star Traders",
-      addressLines: ["Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan"],
+      companyName: "Ultra Water Technologies",
+      addressLines: [],
       invoiceNo: returnNumber,
       date: returnDate,
       customer:
         suppliers.find((s) => String(s._id) === String(supplierId))?.name ?? "",
       items: (items || []).map((it, idx) => ({
         sr: idx + 1,
+        itemName: String(it.productName),
         section: String(it.productName),
+        description: String(it.productName),
+        qty: it.quantity,
         quantity: it.quantity,
         rate: it.rate,
+        salesRate: it.rate,
         amount: it.amount || (it.quantity || 0) * (it.rate || 0),
       })),
       totals: { subtotal: totals.sub, total: totals.total },
-      footerNotes: ["Purchase Return (Draft)"],
     };
     openPrintWindow(payload);
   }

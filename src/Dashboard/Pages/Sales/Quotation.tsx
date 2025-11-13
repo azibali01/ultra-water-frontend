@@ -123,22 +123,13 @@ function Quotation() {
       return;
     }
     try {
-      // Find the correct unique identifier for deletion (prefer _id, then quotationNumber)
+      // Find the correct unique identifier for deletion (prefer quotationNumber)
       let qNum = String(id);
       const toDelete = (quotations || []).find(
         (q) =>
-          String(q.quotationNumber) === qNum ||
-          String((q as { _id?: string })._id) === qNum ||
-          String(
-            (q as Partial<QuotationRecordPayload> & { id?: string }).id
-          ) === qNum ||
-          String(
-            (q as Partial<QuotationRecordPayload> & { docNo?: string }).docNo
-          ) === qNum
+          String(q.quotationNumber) === qNum
       );
-      if (toDelete && (toDelete as QuotationRecordPayload).quotationNumber) {
-        qNum = String((toDelete as QuotationRecordPayload).quotationNumber);
-      } else if (toDelete && toDelete.quotationNumber) {
+      if (toDelete?.quotationNumber) {
         qNum = String(toDelete.quotationNumber);
       }
       await deleteQuotationByNumber(qNum);
@@ -147,15 +138,7 @@ function Quotation() {
         setQuotations((prev) =>
           prev.filter(
             (q) =>
-              String(q.quotationNumber) !== qNum &&
-              String((q as { _id?: string })._id) !== qNum &&
-              String(
-                (q as Partial<QuotationRecordPayload> & { id?: string }).id
-              ) !== qNum &&
-              String(
-                (q as Partial<QuotationRecordPayload> & { docNo?: string })
-                  .docNo
-              ) !== qNum
+              String(q.quotationNumber) !== qNum
           )
         );
       }
@@ -235,59 +218,35 @@ function Quotation() {
   function buildInvoiceDataFromQuotation(q: QuotationLike): InvoiceData {
     return {
       title: "Quotation",
-      companyName: "Seven Star Traders",
-      addressLines: ["Nasir Gardezi Road, Chowk Fawara, Bohar Gate Multan"],
+      companyName: "Ultra Water Technologies",
+      addressLines: [],
       // support legacy docNo/docDate while preferring new fields
-      invoiceNo: String(q.docNo ?? q.id ?? q.quotationNumber),
-      date: (q.docDate ?? q.quotationDate) as string,
+      invoiceNo: String(q.quotationNumber ?? q.docNo ?? q.id ?? ""),
+      date: (q.quotationDate ?? q.docDate ?? "") as string,
       customer:
-        // Use customerName if present (for legacy/compatibility), otherwise extract from customer array or string
-        ("customerName" in q
-          ? (q as { customerName: string }).customerName
-          : Array.isArray(q.customer) && q.customer[0] && q.customer[0].name
+        // Extract customer name from customer array or string
+        (Array.isArray(q.customer) && q.customer[0]?.name
           ? q.customer[0].name
           : typeof q.customer === "string"
           ? q.customer
-          : "") as string,
-      items: ((q.items ?? q.products) || []).map(
+          : (q as { customerName?: string }).customerName ?? "") as string,
+      items: ((q.products ?? q.items) || []).map(
         (it: InventoryItemPayload, idx: number) => {
+          const rate = Number(it.salesRate ?? it.costPrice ?? 0);
+          const quantity = Number(it.quantity ?? 1);
           return {
             sr: idx + 1,
-            section:
-              (it.metadata && String(it.metadata.sku)) ||
-              String(it.itemName) ||
-              "",
-            rate: Number(
-              (
-                it as InventoryItemPayload & {
-                  price?: number;
-                  rate?: number;
-                  unitPrice?: number;
-                }
-              ).price ??
-                (it as InventoryItemPayload & { rate?: number }).rate ??
-                (it as InventoryItemPayload & { unitPrice?: number })
-                  .unitPrice ??
-                0
-            ),
-            amount: Math.floor(
-              ((it as InventoryItemPayload & { quantity?: number }).quantity ||
-                0) *
-                Number(
-                  (
-                    it as InventoryItemPayload & {
-                      price?: number;
-                      rate?: number;
-                      unitPrice?: number;
-                    }
-                  ).price ??
-                    (it as InventoryItemPayload & { rate?: number }).rate ??
-                    (it as InventoryItemPayload & { unitPrice?: number })
-                      .unitPrice ??
-                    0
-                )
-            ),
-          };
+            // description/section - prefer itemName
+            itemName: String(it.itemName ?? it.metadata?.name ?? ""),
+            section: String(it.itemName ?? it.metadata?.sku ?? it.metadata?.name ?? ""),
+            description: String(it.itemName ?? it.metadata?.name ?? ""),
+            // include quantity so print template shows Qty
+            qty: quantity,
+            quantity: quantity,
+            rate,
+            salesRate: rate,
+            amount: Math.floor(quantity * rate),
+          } as any;
         }
       ),
       totals: { total: Math.floor(Number(q.total ?? 0)) },
@@ -646,11 +605,9 @@ function Quotation() {
                   // Prefer showing a human-friendly quotation number if available;
                   // fall back to legacy docNo or the raw id when not present.
                   const displayNumber =
-                    (q &&
-                      (q.quotationNumber ??
-                        (q as QuotationRecordPayload & { docNo?: string })
-                          .docNo ??
-                        idVal)) ??
+                    q.quotationNumber ??
+                    (q as QuotationRecordPayload & { docNo?: string }).docNo ??
+                    idVal ??
                     `quotation-${idx}`;
                   const rowKey = idVal ?? `quotation-${idx}`;
                   return (
@@ -723,83 +680,24 @@ function Quotation() {
                                   // edit
                                   const existingNumber =
                                     q.quotationNumber ??
-                                    (
-                                      q as QuotationRecordPayload & {
-                                        docNo?: string;
-                                      }
-                                    ).docNo ??
-                                    q.quotationNumber ??
-                                    (q as QuotationRecordPayload)
-                                      .quotationNumber;
+                                    (q as QuotationRecordPayload & { docNo?: string }).docNo ??
+                                    "";
 
-                                  // Resolve customerId robustly so SalesDocShell can preselect the customer
-                                  let resolvedCustomerId:
-                                    | string
-                                    | number
-                                    | undefined = undefined;
-                                  if (q && q.customer) {
-                                    if (
-                                      Array.isArray(q.customer) &&
-                                      q.customer[0]
-                                    ) {
-                                      resolvedCustomerId =
-                                        (q.customer[0] as CustomerPayload).id ??
-                                        (
-                                          q.customer[0] as CustomerPayload & {
-                                            customerId?: string;
-                                          }
-                                        ).customerId ??
-                                        (q.customer[0] as CustomerPayload)
-                                          .name ??
-                                        undefined;
-                                    } else if (typeof q.customer === "string") {
-                                      resolvedCustomerId = q.customer;
-                                    }
+                                  // Resolve customer name for edit
+                                  let customerName = "";
+                                  if (Array.isArray(q.customer) && q.customer[0]) {
+                                    customerName = q.customer[0].name ?? "";
+                                  } else if (typeof q.customer === "string") {
+                                    customerName = q.customer;
+                                  } else if ((q as { customerName?: string }).customerName) {
+                                    customerName = (q as { customerName?: string }).customerName ?? "";
                                   }
-                                  // If we only have a customerName, try to map it to an id from loaded customers
-                                  if (
-                                    !resolvedCustomerId &&
-                                    (q as { customerName?: string })
-                                      .customerName
-                                  ) {
-                                    const byName = (customers || []).find(
-                                      (c: CustomerPayload) =>
-                                        String(c.name).trim() ===
-                                        String(
-                                          (q as { customerName?: string })
-                                            .customerName
-                                        ).trim()
-                                    );
-                                    if (byName) resolvedCustomerId = byName._id;
-                                    else
-                                      resolvedCustomerId = (
-                                        q as { customerName?: string }
-                                      ).customerName;
-                                  }
-                                  if (!resolvedCustomerId)
-                                    resolvedCustomerId =
-                                      q.quotationNumber ?? "";
 
                                   // Prefill all fields for edit modal
                                   setInitialPayload({
                                     docNo: existingNumber,
                                     docDate: (q.quotationDate ?? "") as string,
-                                    customer:
-                                      Array.isArray(q.customer) &&
-                                      q.customer.length > 0
-                                        ? {
-                                            name:
-                                              q.customer[0]?.name ??
-                                              String(q.customer[0]),
-                                          }
-                                        : typeof q.customer === "string" ||
-                                          typeof q.customer === "number"
-                                        ? { name: String(q.customer) }
-                                        : typeof resolvedCustomerId ===
-                                            "string" ||
-                                          typeof resolvedCustomerId === "number"
-                                        ? { name: String(resolvedCustomerId) }
-                                        : { name: "" },
+                                    customer: customerName ? { name: customerName } : { name: "" },
                                     remarks: q.remarks ?? "",
                                     totals: {
                                       subTotal:
@@ -876,27 +774,10 @@ function Quotation() {
                               <Menu.Item
                                 color="red"
                                 onClick={() => {
-                                  const id =
-                                    q.quotationNumber ??
-                                    (q as QuotationRecordPayload)
-                                      .quotationNumber ??
-                                    (
-                                      q as QuotationRecordPayload & {
-                                        docNo?: string;
-                                      }
-                                    ).docNo ??
-                                    "";
+                                  const id = q.quotationNumber ?? (q as QuotationRecordPayload & { docNo?: string }).docNo ?? "";
                                   if (!id) return;
                                   setDeleteTarget(id);
-                                  setDeleteTargetDisplay(
-                                    String(
-                                      q.quotationNumber ??
-                                        (q as QuotationRecordPayload)
-                                          .quotationNumber ??
-                                        displayNumber ??
-                                        id
-                                    )
-                                  );
+                                  setDeleteTargetDisplay(String(displayNumber ?? id));
                                   setDeleteModalOpen(true);
                                 }}
                               >
