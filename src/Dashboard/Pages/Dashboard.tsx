@@ -73,7 +73,22 @@ export default function Dashboard() {
   const categoriesCount = categories.length;
   const expensesTotal = expenses.reduce((s, e) => s + (e.amount || 0), 0);
 
-  const lowStock = inventory.filter((i) => (i.stock ?? 0) <= 15);
+  // Low stock: Same logic as StockReport.tsx
+  // Stock is positive, minimum level is set (> 0), and stock is less than minimum
+  const lowStock = inventory.filter((i) => {
+    const stock = i.openingStock ?? i.stock ?? 0;
+    const min = i.minimumStockLevel || 0;
+    return stock > 0 && min > 0 && stock < min;
+  });
+
+  // Total Stock Value: Calculate total worth of inventory
+  const totalStockValue = useMemo(() => {
+    return inventory.reduce((total, item) => {
+      const stock = item.openingStock ?? item.stock ?? 0;
+      const rate = item.salesRate ?? 0;
+      return total + (stock * rate);
+    }, 0);
+  }, [inventory]);
 
   const stats = [
     {
@@ -85,6 +100,11 @@ export default function Dashboard() {
       title: "Inventory Items",
       value: String(inventoryCount),
       icon: <IconPackage size={20} color="#868e96" />,
+    },
+    {
+      title: "Total Stock Value",
+      value: formatCurrency(totalStockValue),
+      icon: <IconChartBar size={20} color="#868e96" />,
     },
   ];
 

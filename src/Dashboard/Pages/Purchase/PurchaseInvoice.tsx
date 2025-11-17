@@ -45,6 +45,9 @@ function getInvoicePrintData(inv: PurchaseInvoiceTableRow) {
     totals: {
       subtotal: inv.subTotal ?? inv.total,
       total: inv.total,
+      totalGrossAmount: inv.totalGrossAmount ?? inv.subTotal ?? inv.total,
+      totalDiscountAmount: inv.totalDiscount ?? 0,
+      totalNetAmount: inv.totalNetAmount ?? inv.total,
     },
   };
 }
@@ -76,6 +79,9 @@ export type PurchaseInvoiceTableRow = {
   subTotal: number;
   total: number;
   amount: number;
+  totalGrossAmount?: number;
+  totalDiscount?: number;
+  totalNetAmount?: number;
   status?: string;
   remarks?: string;
   createdAt?: Date;
@@ -94,7 +100,7 @@ export default function PurchaseInvoicesPage() {
 
   // Ensure products (inventory) are loaded on mount
   React.useEffect(() => {
-    console.log("[PurchaseInvoice] inventory:", inventory);
+
     if (!inventory || inventory.length === 0) {
       loadInventory();
     }
@@ -177,12 +183,6 @@ export default function PurchaseInvoicesPage() {
         const invoices = await getPurchaseInvoices();
         if (!mounted) return;
 
-        if (invoices && invoices.length > 0) {
-          const allSuppliers = invoices.map(
-            (inv: unknown) => (inv as PurchaseInvoiceTableRow).supplier
-          );
-          console.log("All suppliers from backend (invoices):", allSuppliers);
-        }
         setData(
           (invoices || []).map(
             (inv: PurchaseInvoiceTableRow & { supplierId?: string }) => {

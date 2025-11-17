@@ -195,6 +195,15 @@ export default function ProductMaster() {
     }
   }
 
+  // Calculate total stock value
+  const totalStockValue = useMemo(() => {
+    return inventory.reduce((total, item) => {
+      const stock = item.openingStock ?? item.stock ?? 0;
+      const rate = item.salesRate ?? 0;
+      return total + (stock * rate);
+    }, 0);
+  }, [inventory]);
+
   return (
     <div>
       <Box mb="lg">
@@ -221,6 +230,29 @@ export default function ProductMaster() {
           </div>
         </Group>
       </Box>
+
+      {/* Total Stock Value Card */}
+      <Card shadow="sm" p="md" mb="md" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+        <Group justify="space-between">
+          <div>
+            <Text size="sm" style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+              Total Stock Value
+            </Text>
+            <Title order={2} style={{ color: '#fff', marginTop: 4 }}>
+              {formatCurrency(totalStockValue)}
+            </Title>
+          </div>
+          <Box style={{ 
+            background: 'rgba(255,255,255,0.2)', 
+            borderRadius: 12, 
+            padding: '12px 16px',
+            color: '#fff'
+          }}>
+            <Text size="xs" style={{ opacity: 0.9 }}>Total Products</Text>
+            <Text size="xl" fw={700}>{inventory.length}</Text>
+          </Box>
+        </Group>
+      </Card>
 
       <Card shadow="sm" p="sm">
         <Group justify="space-between" style={{ marginBottom: 12 }}>

@@ -293,6 +293,9 @@ export default function PurchaseOrdersPage() {
                             totals: {
                               subtotal: o.subTotal ?? o.total,
                               total: o.total,
+                              totalGrossAmount: o.totalGrossAmount ?? o.subTotal ?? o.total,
+                              totalDiscountAmount: o.totalDiscount ?? 0,
+                              totalNetAmount: o.totalNetAmount ?? o.total,
                             },
                           };
                           openPrintWindow(d);

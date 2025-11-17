@@ -18,6 +18,7 @@ export interface InventoryItem {
   category?: string;
   length?: string | number;
   salesRate?: number;
+  costPrice?: number;
   openingStock?: number;
   minimumStockLevel?: number;
   description?: string;
@@ -555,9 +556,34 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     loadSuppliers();
   }, []);
+
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [inventoryLoading, setInventoryLoading] = useState(false);
   const [inventoryError, setInventoryError] = useState<string | null>(null);
+
+  // 🚀 AUTO-LOAD ALL DATA ON APP START
+  useEffect(() => {
+    const loadAllData = async () => {
+      try {
+        // Load all data in parallel for faster startup
+        await Promise.all([
+          loadInventory(),
+          loadCategories(),
+          loadPurchases(),
+          loadPurchaseInvoices(),
+          loadGrns(),
+          loadPurchaseReturns(),
+          loadExpenses(),
+          loadReceiptVouchers(),
+          loadPaymentVouchers(),
+          loadQuotations(),
+        ]);
+      } catch (error) {
+      }
+    };
+
+    loadAllData();
+  }, []); // Empty dependency array - run only once on mount
   // ===== CATEGORIES STATE =====
   const [categories, setCategories] = useState<string[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -763,7 +789,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   const deleteInventoryItem = useCallback(async (id: string) => {
     setInventoryLoading(true);
     try {
-      console.log("Deleting inventory item with MongoDB ID:", id);
+
       await api.deleteInventory(id);
       setInventory((prev) => prev.filter((p) => String(p._id) !== String(id)));
       showNotification({
@@ -941,7 +967,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         };
         const created = await api.createSale(apiPayload);
 
-        console.debug("Create sale response:", created);
+
 
         const payloadCustomer = (payload as { customer?: unknown })?.customer;
         const inferredCustomerName = Array.isArray(payloadCustomer)
@@ -1057,7 +1083,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
       setSalesLoading(true);
       try {
         const updated = await api.updateSaleByNumber(String(id), payload);
-        console.debug("Update sale response:", updated);
+
         const payloadCustomer = (payload as { customer?: unknown })?.customer;
         const inferredCustomerName = Array.isArray(payloadCustomer)
           ? (payloadCustomer[0] as { name?: string })?.name

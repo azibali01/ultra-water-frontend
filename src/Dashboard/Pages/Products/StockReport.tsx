@@ -58,18 +58,27 @@ export default function StockReportPage() {
     return typeof stock === "number" ? stock : 0;
   };
 
-  // Low stock: stock > 0 and stock <= minimumStockLevel
+  // Low stock: stock is positive but less than minimumStockLevel
   const lowStockItems = products.filter((p) => {
     const stock = getStockValue(p);
     const min = p.minimumStockLevel || 0;
-    return stock > 0 && stock <= min;
+    // Only show as low stock if:
+    // 1. Stock is positive (> 0)
+    // 2. Minimum level is set (> 0)
+    // 3. Stock is less than minimum level
+    return stock > 0 && min > 0 && stock < min;
   });
   // Negative stock: stock < 0
   const negativeStockItems = products.filter((p) => getStockValue(p) < 0);
-  // In stock: stock > minimumStockLevel
-  const inStockItems = products.filter(
-    (p) => getStockValue(p) > (p.minimumStockLevel || 0)
-  );
+  // In stock: stock >= minimumStockLevel (or minimumStockLevel not set)
+  const inStockItems = products.filter((p) => {
+    const stock = getStockValue(p);
+    const min = p.minimumStockLevel || 0;
+    // In stock if:
+    // 1. Stock is >= 0 (not negative)
+    // 2. Either no minimum level set (min = 0) OR stock >= minimum level
+    return stock >= 0 && (min === 0 || stock >= min);
+  });
 
   // Pagination for All Items
   const allTotalPages = Math.ceil(products.length / parseInt(allPerPage));
@@ -230,8 +239,8 @@ export default function StockReportPage() {
                         <Table.Td>
                           {getStockValue(product) < 0 ? (
                             <Badge color="red">Negative</Badge>
-                          ) : getStockValue(product) <=
-                            (product.minimumStockLevel || 0) ? (
+                          ) : (product.minimumStockLevel || 0) > 0 &&
+                            getStockValue(product) < (product.minimumStockLevel || 0) ? (
                             <Badge color="yellow">Low Stock</Badge>
                           ) : (
                             <Badge color="green">In Stock</Badge>

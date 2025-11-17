@@ -732,6 +732,9 @@ export default function SalesDocShell({
                 totals: {
                   subtotal: totals.sub,
                   total: totals.total ?? totals.totalNetAmount,
+                  totalGrossAmount: totals.totalGrossAmount,
+                  totalDiscountAmount: totals.totalDiscountAmount,
+                  totalNetAmount: totals.totalNetAmount,
                 },
               };
               openPrintWindow(data);
@@ -746,12 +749,6 @@ export default function SalesDocShell({
         <Button
           type="submit"
           disabled={saveDisabled || submitting}
-          onClick={() =>
-            console.log("=== Save button clicked ===", {
-              saveDisabled,
-              submitting,
-            })
-          }
         >
           Save {mode}
         </Button>

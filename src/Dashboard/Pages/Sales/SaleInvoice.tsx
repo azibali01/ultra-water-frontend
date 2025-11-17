@@ -868,10 +868,7 @@ export default function SaleInvoice() {
                           terms: "",
                           customer: cust ?? undefined,
                         };
-                        console.log(
-                          "Importing quotation as SalePayload:",
-                          apiPayload
-                        );
+
                         setInitialPayload(apiPayload);
                         setOpen(true);
                         setImportOpen(false);

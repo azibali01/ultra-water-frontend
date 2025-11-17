@@ -249,7 +249,13 @@ function Quotation() {
           } as any;
         }
       ),
-      totals: { total: Math.floor(Number(q.total ?? 0)) },
+      totals: {
+        subtotal: Math.floor(Number(q.subTotal ?? q.total ?? 0)),
+        total: Math.floor(Number(q.totalNetAmount ?? q.total ?? 0)),
+        totalGrossAmount: Math.floor(Number(q.totalGrossAmount ?? 0)),
+        totalDiscountAmount: Math.floor(Number(q.totalDiscount ?? 0)),
+        totalNetAmount: Math.floor(Number(q.totalNetAmount ?? q.total ?? 0)),
+      },
     };
   }
 
@@ -269,11 +275,11 @@ function Quotation() {
     if (typeof payload.customer === "object" && payload.customer !== null) {
       // payload.customer is already a customer object
       cust = payload.customer;
-      console.log("Using customer object directly:", cust);
+
     } else {
       // payload.customer is an ID, find the full customer object
       cust = customers.find((c) => String(c._id) === String(payload.customer));
-      console.log("Found customer by ID:", cust);
+
     }
     if (!cust) {
       showNotification({
@@ -853,7 +859,7 @@ function Quotation() {
             submitting={creating}
             setSubmitting={setCreating}
             onSubmit={(payload: SalesPayload) => {
-              console.log("=== Quotation onSubmit called ===");
+
               // Don't close modal immediately - let saveFromShell handle it
               saveFromShell(payload);
             }}

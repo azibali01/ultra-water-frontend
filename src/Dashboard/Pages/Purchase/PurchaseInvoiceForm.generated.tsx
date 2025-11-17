@@ -18,6 +18,8 @@ import { useDataContext } from "../../Context/DataContext";
 import { Trash2 } from "lucide-react";
 import { Group } from "@mantine/core";
 import type { Supplier as BaseSupplier } from "../../../components/purchase/SupplierForm";
+import openPrintWindow from "../../../components/print/printWindow";
+import type { InvoiceData } from "../../../components/print/printTemplate";
 
 type Supplier = BaseSupplier & {
   Credit?: number;
@@ -384,21 +386,6 @@ export function PurchaseInvoiceForm({
                       Item
                     </Table.Th>
                     <Table.Th
-                      style={{ textAlign: "left", padding: 8, width: 120 }}
-                    >
-                      Color
-                    </Table.Th>
-                    <Table.Th
-                      style={{ textAlign: "left", padding: 8, width: 120 }}
-                    >
-                      Thickness
-                    </Table.Th>
-                    <Table.Th
-                      style={{ textAlign: "left", padding: 8, width: 120 }}
-                    >
-                      Length
-                    </Table.Th>
-                    <Table.Th
                       style={{ textAlign: "right", padding: 8, width: 100 }}
                     >
                       Qty
@@ -464,22 +451,6 @@ export function PurchaseInvoiceForm({
                               );
                             }}
                             placeholder="Select product"
-                          />
-                        </Table.Td>
-                        
-                        <Table.Td style={{ padding: 8 }}>
-                          <TextInput
-                            value={String(it.length ?? "")}
-                            onChange={(e) =>
-                              setProducts((prev) =>
-                                prev.map((row) =>
-                                  row.id === it.id
-                                    ? { ...row, length: e.target.value }
-                                    : row
-                                )
-                              )
-                            }
-                            placeholder="Length"
                           />
                         </Table.Td>
                         <Table.Td style={{ padding: 8, textAlign: "right" }}>
@@ -578,7 +549,39 @@ export function PurchaseInvoiceForm({
       </Card>
 
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-        <Button type="button" variant="outline" onClick={() => window.print()}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            const printData: InvoiceData = {
+              title: "Purchase Invoice",
+              companyName: "Ultra Water Technologies",
+              addressLines: [],
+              invoiceNo: purchaseInvoiceNumber,
+              date: invoiceDate,
+              customer: selectedSupplier?.name ?? "",
+              items: products.map((p, idx) => ({
+                sr: idx + 1,
+                itemName: p.productName,
+                section: p.productName,
+                description: p.productName,
+                qty: p.quantity,
+                quantity: p.quantity,
+                rate: p.rate,
+                salesRate: p.rate,
+                amount: (p.quantity || 0) * (p.rate || 0),
+              })),
+              totals: {
+                subtotal: subTotal,
+                total: total,
+                totalGrossAmount: subTotal,
+                totalDiscountAmount: 0,
+                totalNetAmount: total,
+              },
+            };
+            openPrintWindow(printData);
+          }}
+        >
           Print
         </Button>
         <Button type="submit" onClick={handleSubmit}>

@@ -341,6 +341,9 @@ export default function PurchaseReturnPage() {
                                 totals: {
                                   subtotal: full?.subtotal ?? r.total,
                                   total: full?.total ?? r.total,
+                                  totalGrossAmount: full?.totalGrossAmount ?? full?.subtotal ?? r.total,
+                                  totalDiscountAmount: full?.totalDiscount ?? 0,
+                                  totalNetAmount: full?.totalNetAmount ?? full?.total ?? r.total,
                                 },
                               };
                               openPrintWindow(payload);
@@ -753,7 +756,13 @@ function ReturnForm({
         salesRate: it.rate,
         amount: it.amount || (it.quantity || 0) * (it.rate || 0),
       })),
-      totals: { subtotal: totals.sub, total: totals.total },
+      totals: {
+        subtotal: totals.sub,
+        total: totals.total,
+        totalGrossAmount: totals.totalGrossAmount ?? totals.sub,
+        totalDiscountAmount: totals.totalDiscountAmount ?? 0,
+        totalNetAmount: totals.totalNetAmount ?? totals.total,
+      },
     };
     openPrintWindow(payload);
   }

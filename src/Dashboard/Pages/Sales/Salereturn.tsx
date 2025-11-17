@@ -29,7 +29,7 @@ export default function SaleReturnPage() {
 
   // Debug: log customers to check structure
   useEffect(() => {
-    console.log("[SaleReturn] customers:", customers);
+
   }, [customers]);
 
   // Ensure products (inventory) are loaded on mount
@@ -131,10 +131,6 @@ export default function SaleReturnPage() {
       metadata: { source: "sale-return" },
     };
     try {
-      console.log(
-        "[SaleReturn] apiPayload sent to backend:",
-        JSON.stringify(apiPayload, null, 2)
-      );
       await createSaleReturn(apiPayload);
       showNotification({
         title: "Sale Return Saved",

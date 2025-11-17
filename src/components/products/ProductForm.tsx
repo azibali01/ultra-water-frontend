@@ -29,6 +29,7 @@ export function ProductForm({ product, onClose }: Props) {
     itemName: product?.itemName || "",
     category: product?.category || "",
     salesRate: product?.salesRate?.toString() ?? "",
+    costPrice: product?.costPrice?.toString() ?? "",
     openingStock: product?.openingStock?.toString() ?? "",
     minimumStockLevel: product?.minimumStockLevel?.toString() ?? "",
     description: product?.description || "",
@@ -53,6 +54,7 @@ export function ProductForm({ product, onClose }: Props) {
       itemName: form.itemName.trim(),
       category: form.category || "General",
       salesRate: form.salesRate === "" ? undefined : Number(form.salesRate),
+      costPrice: form.costPrice === "" ? undefined : Number(form.costPrice),
       openingStock:
         form.openingStock === "" ? undefined : Number(form.openingStock),
       minimumStockLevel:
@@ -72,7 +74,7 @@ export function ProductForm({ product, onClose }: Props) {
         console.log("Updating product with ID:", product._id);
         await updateInventoryItem(product._id, payload);
       } else {
-        console.log("Creating new product");
+
         await createInventoryItem(payload);
       }
       onClose();
@@ -108,6 +110,12 @@ export function ProductForm({ product, onClose }: Props) {
           searchable
           clearable
           placeholder="Select brand or supplier"
+        />
+        <NumberInput
+          label="Cost Price"
+          value={form.costPrice}
+          onChange={(v) => setForm({ ...form, costPrice: v?.toString() ?? "" })}
+          placeholder="Enter cost price"
         />
       </Group>
 

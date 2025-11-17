@@ -78,7 +78,7 @@ export function CustomerForm({
       } else {
         // Create new customer
         const newCustomer = await createCustomer(customerData);
-        console.log("Created customer response:", newCustomer);
+
 
         // Ensure we have a valid MongoDB ID (string)
         const customerId =

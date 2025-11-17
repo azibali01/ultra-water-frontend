@@ -77,7 +77,7 @@ export default function CustomersPage() {
 
     setDeleting(true);
     try {
-      console.log("Deleting customer with MongoDB ID:", customerToDelete._id);
+
       await deleteCustomer(customerToDelete._id);
       setCustomers((prev) =>
         prev.filter((x) => x._id !== customerToDelete._id)

@@ -380,11 +380,6 @@ export function PurchaseOrderForm({
                       Item
                     </Table.Th>
                     <Table.Th
-                      style={{ textAlign: "left", padding: 8, width: 120 }}
-                    >
-                      Length
-                    </Table.Th>
-                    <Table.Th
                       style={{ textAlign: "right", padding: 8, width: 100 }}
                     >
                       Qty
@@ -450,22 +445,6 @@ export function PurchaseOrderForm({
                               );
                             }}
                             placeholder="Select product"
-                          />
-                        </Table.Td>
-
-                        <Table.Td style={{ padding: 8 }}>
-                          <TextInput
-                            value={String(it.length ?? "")}
-                            onChange={(e) =>
-                              setProducts((prev) =>
-                                prev.map((row) =>
-                                  row.id === it.id
-                                    ? { ...row, length: e.target.value }
-                                    : row
-                                )
-                              )
-                            }
-                            placeholder="Length"
                           />
                         </Table.Td>
                         <Table.Td style={{ padding: 8, textAlign: "right" }}>

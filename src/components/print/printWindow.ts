@@ -73,7 +73,7 @@ export function openPrintWindow(data: InvoiceData) {
     // helpful debug log when printing
     try {
       // eslint-disable-next-line no-console
-      console.debug("Printing invoice data (items length):", (normalized.items || []).length, normalized);
+
     } catch { }
     const html = renderInvoiceHTML(normalized);
     const w = window.open("", "_blank");
