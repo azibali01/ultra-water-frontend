@@ -691,7 +691,13 @@ function ReturnForm({
     );
     // If you want to support discounts, add a discount property to PurchaseLineItem and use it here
     const total = sub; // No discountAmount property exists
-    return { sub, total: Math.floor(total) };
+    return { 
+      sub, 
+      total: Math.floor(total),
+      totalGrossAmount: sub,
+      totalDiscountAmount: 0,
+      totalNetAmount: Math.floor(total)
+    };
   }, [items]);
 
   function handleSave() {

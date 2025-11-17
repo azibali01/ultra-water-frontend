@@ -134,6 +134,9 @@ export interface PurchaseReturnRecord {
   linkedPoId?: string;
   subtotal: number;
   total: number;
+  totalGrossAmount?: number;
+  totalDiscount?: number;
+  totalNetAmount?: number;
   reason?: string;
 }
 

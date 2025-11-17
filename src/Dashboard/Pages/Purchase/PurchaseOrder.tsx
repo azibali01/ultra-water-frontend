@@ -30,6 +30,9 @@ type PO = {
   products: PurchaseLineItem[];
   subTotal: number;
   total: number;
+  totalGrossAmount?: number;
+  totalDiscount?: number;
+  totalNetAmount?: number;
   status: string;
   expectedDeliveryDate?: Date;
   remarks?: string;
