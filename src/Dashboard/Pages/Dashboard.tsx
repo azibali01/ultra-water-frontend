@@ -204,9 +204,9 @@ export default function Dashboard() {
   return (
     <div>
       <Box mb="lg">
-        <Title order={1}>Welcome to Aluminium POS</Title>
+        <Title order={1}>Welcome to Ultra Water Technologies</Title>
         <Text c="dimmed" size="md">
-          Manage your aluminium business with our POS and inventory system.
+          Manage your business with SemiColon.
         </Text>
       </Box>
 
