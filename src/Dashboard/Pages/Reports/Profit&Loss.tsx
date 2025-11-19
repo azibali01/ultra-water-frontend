@@ -138,7 +138,10 @@ export default function ProfitLoss() {
       map.set(key, cur);
     };
     filtered.sales.forEach((s: SaleRecord) => {
-      const d = new Date(s.date);
+      const dateValue = s.invoiceDate ?? s.date;
+      if (!dateValue) return; // Skip if no date
+      const d = new Date(dateValue);
+      if (isNaN(d.getTime())) return; // Skip if invalid date
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
         2,
         "0"
@@ -148,7 +151,9 @@ export default function ProfitLoss() {
       add(key, "sales", saleTotal);
     });
     filtered.purchaseInvoices.forEach((p: PurchaseInvoiceRecord) => {
+      if (!p.invoiceDate) return; // Skip if no date
       const d = new Date(p.invoiceDate as string);
+      if (isNaN(d.getTime())) return; // Skip if invalid date
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
         2,
         "0"
@@ -291,7 +296,7 @@ export default function ProfitLoss() {
         <Grid gutter="md">
           <Grid.Col span={8}>
             <Card withBorder padding="sm">
-              <Text size="sm" color="dimmed" style={{ marginBottom: 8 }}>
+              <Text size="sm" c="dimmed" style={{ marginBottom: 8 }}>
                 Monthly Sales vs Purchases
               </Text>
               <div style={{ width: "100%", height: 260 }}>
@@ -311,7 +316,7 @@ export default function ProfitLoss() {
 
           <Grid.Col span={4}>
             <Card withBorder padding="sm">
-              <Text size="sm" color="dimmed" style={{ marginBottom: 8 }}>
+              <Text size="sm" c="dimmed" style={{ marginBottom: 8 }}>
                 Expenses by Category
               </Text>
               <div style={{ width: "100%", height: 260 }}>
@@ -358,10 +363,10 @@ export default function ProfitLoss() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {filtered.sales.map((s: SaleRecord) => (
-                <Table.Tr key={s.id}>
+              {filtered.sales.map((s: SaleRecord, idx: number) => (
+                <Table.Tr key={s.id || s.invoiceNumber || `sale-${idx}`}>
                   <Table.Td>{s.id}</Table.Td>
-                  <Table.Td>{formatDate(s.date)}</Table.Td>
+                  <Table.Td>{formatDate(s.invoiceDate || s.date)}</Table.Td>
                   <Table.Td>
                     {typeof s.customer === "string"
                       ? s.customer
@@ -406,8 +411,8 @@ export default function ProfitLoss() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {filtered.purchaseInvoices.map((p: PurchaseInvoiceRecord) => (
-                <Table.Tr key={p.id}>
+              {filtered.purchaseInvoices.map((p: PurchaseInvoiceRecord, idx: number) => (
+                <Table.Tr key={p.id || p.purchaseInvoiceNumber || `purchase-${idx}`}>
                   <Table.Td>{p.purchaseInvoiceNumber || p.id || "-"}</Table.Td>
                   <Table.Td>{formatDate(p.invoiceDate as string)}</Table.Td>
                   <Table.Td>
@@ -474,16 +479,19 @@ export default function ProfitLoss() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {filtered.expenses.map((ex: Expense) => (
-                <Table.Tr key={ex.id}>
-                  <Table.Td>{ex.expenseNumber || ex.id}</Table.Td>
-                  <Table.Td>{formatDate(ex.date as string)}</Table.Td>
-                  <Table.Td>{ex.categoryType || "Other"}</Table.Td>
-                  <Table.Td style={{ textAlign: "right" }}>
-                    {formatCurrency(ex.amount)}
-                  </Table.Td>
-                </Table.Tr>
-              ))}
+              {filtered.expenses.map((ex: Expense, idx: number) => {
+                const key = String(ex.id ?? ex.expenseNumber ?? `expense-${idx}`);
+                return (
+                  <Table.Tr key={key}>
+                    <Table.Td>{ex.expenseNumber || ex.id}</Table.Td>
+                    <Table.Td>{formatDate(ex.date as string)}</Table.Td>
+                    <Table.Td>{ex.categoryType || "Other"}</Table.Td>
+                    <Table.Td style={{ textAlign: "right" }}>
+                      {formatCurrency(ex.amount)}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
             </Table.Tbody>
           </Table>
         </ScrollArea>

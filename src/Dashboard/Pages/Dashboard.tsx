@@ -33,22 +33,31 @@ export default function Dashboard() {
   }, [sales]);
 
   const totalSales = useMemo(
-    () => salesArray.reduce((s, it) => s + (it.total || 0), 0),
+    () => salesArray.reduce((s, it) => s + (it.total || it.totalNetAmount || it.totalGrossAmount || 0), 0),
     [salesArray]
   );
   const inventoryCount = inventory.length;
 
   const todayRevenue = useMemo(() => {
     return salesArray
-      .filter((s) => dayjs(s.date).isSame(dayjs(), "day"))
-      .reduce((sum, s) => sum + (s.total || 0), 0);
+      .filter((s) => {
+        const dateValue = s.invoiceDate || s.date;
+        if (!dateValue) return false;
+        const d = dayjs(dateValue);
+        return d.isValid() && d.isSame(dayjs(), "day");
+      })
+      .reduce((sum, s) => sum + (s.total || s.totalNetAmount || s.totalGrossAmount || 0), 0);
   }, [salesArray]);
 
   const monthlyRevenue = useMemo(() => {
     const byMonth: Record<string, number> = {};
     salesArray.forEach((s) => {
-      const m = dayjs(s.date).format("MMM YYYY");
-      byMonth[m] = (byMonth[m] || 0) + (s.total || 0);
+      const dateValue = s.invoiceDate || s.date;
+      if (!dateValue) return;
+      const d = dayjs(dateValue);
+      if (!d.isValid()) return;
+      const m = d.format("MMM YYYY");
+      byMonth[m] = (byMonth[m] || 0) + (s.total || s.totalNetAmount || s.totalGrossAmount || 0);
     });
     const months = Array.from({ length: 7 }).map((_, i) =>
       dayjs()

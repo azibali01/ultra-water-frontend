@@ -122,10 +122,12 @@ export function PurchaseInvoiceForm({
   );
   const subTotal = useMemo(() => {
     return products.reduce((s, i) => {
-      const length = Number(i.length) || 1;
+      const length = Number(i.length) || 0;
       const rate = Number(i.rate) || 0;
       const qty = Number(i.quantity) || 0;
-      return s + length * rate * qty;
+      // If length is 0 or not set, use quantity * rate only
+      const amount = length > 0 ? length * rate * qty : rate * qty;
+      return s + amount;
     }, 0);
   }, [products]);
   const total = subTotal;
@@ -143,30 +145,34 @@ export function PurchaseInvoiceForm({
         ? new Date(expectedDelivery)
         : undefined,
       supplierId,
-      products: products.map((p) => ({
-        id: p.id,
-        productId:
-          p.productId ??
-          inventory.find((inv) => inv.itemName === p.productName)?._id ??
-          "",
-        productName: p.productName,
-        quantity: Math.floor(Number(p.quantity) || 0),
-        rate: Math.floor(Number(p.rate) || 0),
-        length: Math.floor(Number(p.length) || 0),
-        grossAmount: Math.floor(
-          typeof p.grossAmount === "number" ? p.grossAmount : 0
-        ),
-        netAmount: Math.floor(
-          typeof p.netAmount === "number" ? p.netAmount : 0
-        ),
-        percent: Math.floor(typeof p.percent === "number" ? p.percent : 0),
-        discountAmount: Math.floor(
-          typeof p.discountAmount === "number" ? p.discountAmount : 0
-        ),
-        amount: Math.floor(typeof p.amount === "number" ? p.amount : 0),
-        inventoryId: inventory.find((inv) => inv.itemName === p.productName)
-          ?._id,
-      })),
+      products: products.map((p) => {
+        const length = Number(p.length) || 0;
+        const qty = Number(p.quantity) || 0;
+        const rate = Number(p.rate) || 0;
+        const calculatedGross = length > 0 ? length * qty * rate : qty * rate;
+        return {
+          id: p.id,
+          productId:
+            p.productId ??
+            inventory.find((inv) => inv.itemName === p.productName)?._id ??
+            "",
+          productName: p.productName,
+          quantity: Math.floor(qty),
+          rate: Math.floor(rate),
+          length: Math.floor(length),
+          grossAmount: Math.floor(calculatedGross),
+          netAmount: Math.floor(
+            typeof p.netAmount === "number" ? p.netAmount : calculatedGross
+          ),
+          percent: Math.floor(typeof p.percent === "number" ? p.percent : 0),
+          discountAmount: Math.floor(
+            typeof p.discountAmount === "number" ? p.discountAmount : 0
+          ),
+          amount: Math.floor(calculatedGross),
+          inventoryId: inventory.find((inv) => inv.itemName === p.productName)
+            ?._id,
+        };
+      }),
       remarks,
       subTotal: Math.floor(subTotal),
       total: Math.floor(total),

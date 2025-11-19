@@ -119,6 +119,16 @@ export function LineItemsTable({
                       amount: quantity * rate,
                     });
                   }}
+                  placeholder="Qty"
+                  min={0}
+                  step={1}
+                  hideControls={false}
+                  styles={{
+                    input: {
+                      
+                      fontWeight: 500,
+                    }
+                  }}
                 />
               </Table.Td>
 
@@ -132,6 +142,17 @@ export function LineItemsTable({
                       salesRate: rate,
                       amount: quantity * rate,
                     });
+                  }}
+                  placeholder="Enter rate"
+                  thousandSeparator=","
+                  min={0}
+                  step={1}
+                  hideControls={false}
+                  styles={{
+                    input: {
+                     
+                      fontWeight: 500,
+                    }
                   }}
                 />
               </Table.Td>
@@ -168,7 +189,7 @@ export function LineItemsTable({
 
               <Table.Td>{net.toFixed(2)}</Table.Td>
 
-              <Table.Td>{(quantity * rate).toFixed(2)}</Table.Td>
+              <Table.Td>{net.toFixed(2)}</Table.Td>
 
               <Table.Td>
                 <div style={{ display: "flex", justifyContent: "flex-start" }}>

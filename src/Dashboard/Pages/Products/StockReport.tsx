@@ -10,17 +10,21 @@ import {
   ScrollArea,
   Pagination,
   Select,
+  Button,
 } from "@mantine/core";
 import Table from "../../../lib/AppTable";
 import {
   IconAlertTriangle,
   IconPackage,
   IconPackageExport,
+  IconPrinter,
 } from "@tabler/icons-react";
 
 import { useState, useEffect, useMemo } from "react";
 import api from "../../../lib/api";
 import type { InventoryItem } from "../../Context/DataContext";
+import { openStockLedgerPrintWindow } from "../../../components/print/printStockLedger";
+import type { StockLedgerData, StockLedgerItem } from "../../../components/print/printStockLedger";
 
 function formatNumber(n: number | undefined) {
   if (n === undefined || n === null || isNaN(n)) {
@@ -106,12 +110,69 @@ export default function StockReportPage() {
     return negativeStockItems.slice(start, end);
   }, [negativeStockItems, negPage, negPerPage]);
 
+  const handlePrint = () => {
+    const stockLedgerItems: StockLedgerItem[] = products.map((item, idx) => {
+      const currentStock = getStockValue(item);
+      const minLevel = item.minimumStockLevel ?? 0;
+      
+      let status = "In Stock";
+      if (currentStock < 0) {
+        status = "Negative Stock";
+      } else if (minLevel > 0 && currentStock > 0 && currentStock < minLevel) {
+        status = "Low Stock";
+      }
+
+      return {
+        sr: idx + 1,
+        itemName: item.itemName ?? "Unknown",
+        category: item.category ?? undefined,
+        openingStock: item.openingStock ?? item.stock ?? 0,
+        currentStock: currentStock,
+        minimumStockLevel: minLevel > 0 ? minLevel : undefined,
+        status: status,
+      };
+    });
+
+    const inStockCount = inStockItems.length;
+    const lowStockCount = lowStockItems.length;
+    const negativeStockCount = negativeStockItems.length;
+
+    const printData: StockLedgerData = {
+      title: "Stock Report",
+      companyName: "Ultra Water Technologies",
+      reportDate: new Date().toLocaleDateString('en-PK', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      }),
+      items: stockLedgerItems,
+      summary: {
+        totalItems: products.length,
+        inStockItems: inStockCount,
+        lowStockItems: lowStockCount,
+        negativeStockItems: negativeStockCount,
+      },
+    };
+
+    openStockLedgerPrintWindow(printData);
+  };
+
   return (
     <div>
-      <Box mb="md">
-        <Title order={2}>Stock Report</Title>
-        <Text color="dimmed">Monitor inventory levels and stock status</Text>
-      </Box>
+      <Group justify="space-between" mb="md">
+        <Box>
+          <Title order={2}>Stock Report</Title>
+          <Text color="dimmed">Monitor inventory levels and stock status</Text>
+        </Box>
+        <Button
+          leftSection={<IconPrinter size={18} />}
+          onClick={handlePrint}
+          variant="filled"
+          color="blue"
+        >
+          Print Stock Report
+        </Button>
+      </Group>
 
       <Grid gutter="md" mb="md">
         <Grid.Col span={4}>

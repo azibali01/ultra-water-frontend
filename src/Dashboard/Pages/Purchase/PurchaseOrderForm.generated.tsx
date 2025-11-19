@@ -130,7 +130,10 @@ export function PurchaseOrderForm({
     return products.reduce((s, i) => {
       const rate = Number(i.rate) || 0;
       const qty = Number(i.quantity) || 0;
-      return s + rate * qty;
+      const length = Number(i.length) || 0;
+      // If length is set and > 0, include it in calculation
+      const amount = length > 0 ? length * rate * qty : rate * qty;
+      return s + amount;
     }, 0);
   }, [products]);
   const total = subTotal;
@@ -150,18 +153,22 @@ export function PurchaseOrderForm({
       supplierId,
       products: products.map((p) => {
         const inv = inventory.find((inv) => inv.itemName === p.productName);
+        const length = Number(p.length) || 0;
+        const qty = Number(p.quantity) || 1;
+        const rate = Number(p.rate) || 0;
+        const calculatedAmount = length > 0 ? length * qty * rate : qty * rate;
         return {
           id: p.id,
           productId: inv?._id || p.productId || "",
           productName: p.productName || "Select product",
           code: p.code || "",
           percent: Math.floor(p.percent ?? 0),
-          quantity: Math.floor(Number(p.quantity) || 1),
-          rate: Math.floor(Number(p.rate) || 0),
-          grossAmount: Math.floor(p.grossAmount ?? 0),
+          quantity: Math.floor(qty),
+          rate: Math.floor(rate),
+          grossAmount: Math.floor(calculatedAmount),
           discountAmount: Math.floor(p.discountAmount ?? 0),
-          netAmount: Math.floor(p.netAmount ?? 0),
-          amount: Math.floor(Number(p.amount ?? 0)),
+          netAmount: Math.floor(calculatedAmount - (p.discountAmount ?? 0)),
+          amount: Math.floor(calculatedAmount),
         };
       }),
       remarks,

@@ -19,7 +19,7 @@ import type { PurchaseLineItem } from "./types";
 import { PurchaseOrderForm as GeneratedPOForm } from "./PurchaseOrderForm.generated";
 import { useDataContext } from "../../Context/DataContext";
 
-import { IconEdit, IconPlus, IconPrinter, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconPrinter, IconTrash, IconDownload } from "@tabler/icons-react";
 import { Search } from "lucide-react";
 
 type PO = {
@@ -306,6 +306,45 @@ export default function PurchaseOrdersPage() {
                         leftSection={<IconPrinter size={16} />}
                       >
                         Print
+                      </Menu.Item>
+                      <Menu.Item
+                        onClick={() => {
+                          const d: InvoiceData = {
+                            title: "Purchase Order",
+                            companyName: "Ultra Water Technologies",
+                            addressLines: [],
+                            invoiceNo: String(o.poNumber),
+                            date: String(o.poDate),
+                            customer: o.supplier?.name || "",
+                            items: (o.products || []).map((it, idx) => ({
+                              sr: idx + 1,
+                              itemName: `${it.productName}`,
+                              section: `${it.productName}`,
+                              description: `${it.productName}`,
+                              qty: it.quantity,
+                              quantity: it.quantity,
+                              rate: Number(it.rate ?? 0),
+                              salesRate: Number(it.rate ?? 0),
+                              amount: Number(it.amount ?? (it.quantity || 0) * (it.rate || 0)),
+                            })),
+                            totals: {
+                              subtotal: o.subTotal ?? o.total,
+                              total: o.total,
+                              totalGrossAmount: o.totalGrossAmount ?? o.subTotal ?? o.total,
+                              totalDiscountAmount: o.totalDiscount ?? 0,
+                              totalNetAmount: o.totalNetAmount ?? o.total,
+                            },
+                          };
+                          openPrintWindow(d);
+                          showNotification({
+                            title: "Download Ready",
+                            message: "Use Ctrl+P or Cmd+P and select 'Save as PDF' to download",
+                            color: "blue",
+                          });
+                        }}
+                        leftSection={<IconDownload size={16} />}
+                      >
+                        Download PDF
                       </Menu.Item>
                       <Menu.Item color="red" onClick={() => setDeletePO(o)} leftSection={<IconTrash size={16} />}>
                         Delete

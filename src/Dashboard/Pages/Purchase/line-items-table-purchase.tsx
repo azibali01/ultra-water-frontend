@@ -69,7 +69,11 @@ export function PurchaseLineItemsTable({
       items.map((i) => {
         if (i.id !== id) return i;
         const next: PurchaseLineItem = { ...i, ...patch } as PurchaseLineItem;
-        next.grossAmount = Number((next.quantity || 0) * (next.rate || 0));
+        const length = Number(next.length) || 0;
+        const qty = Number(next.quantity) || 0;
+        const rate = Number(next.rate) || 0;
+        // If length > 0, include it; otherwise just qty * rate
+        next.grossAmount = length > 0 ? length * qty * rate : qty * rate;
         if (next.percent && next.percent > 0) {
           next.discountAmount = Number(
             (next.grossAmount * (next.percent || 0)) / 100

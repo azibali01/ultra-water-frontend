@@ -1877,6 +1877,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         const normalized = {
           ...s,
           id: s.invoiceNumber ?? s.id ?? `sale-${Date.now()}`,
+          date: s.invoiceDate ?? s.date ?? new Date().toISOString(),
+          invoiceDate: s.invoiceDate ?? s.date ?? new Date().toISOString(),
           customer: normalizedCustomer,
           customerName: customerName,
         } as SaleRecord;

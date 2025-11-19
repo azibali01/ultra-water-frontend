@@ -14,10 +14,13 @@ import {
   Pagination,
   MultiSelect,
 } from "@mantine/core";
+import { IconPrinter } from "@tabler/icons-react";
 import Table from "../../../lib/AppTable";
 import { useDataContext } from "../../Context/DataContext";
 import { formatCurrency, formatDate } from "../../../lib/format-utils";
 import { Search, RefreshCw } from "lucide-react";
+import { openJournalLedgerPrintWindow } from "../../../components/print/printJournalLedger";
+import type { JournalLedgerData, JournalLedgerEntry } from "../../../components/print/printJournalLedger";
 
 type LedgerEntry = {
   id: string;
@@ -415,18 +418,71 @@ export default function JournalLedger() {
             View all transactions with customers and suppliers
           </Text>
         </div>
-        <Button
-          leftSection={<RefreshCw size={16} />}
-          variant="outline"
-          onClick={() => {
-            if (typeof loadSales === "function") loadSales();
-            if (typeof loadPurchases === "function") loadPurchases();
-            if (typeof loadCustomers === "function") loadCustomers();
-            if (typeof loadSuppliers === "function") loadSuppliers();
-          }}
-        >
-          Refresh
-        </Button>
+        <Group>
+          <Button
+            leftSection={<IconPrinter size={16} />}
+            variant="filled"
+            color="blue"
+            onClick={() => {
+              const printEntries: JournalLedgerEntry[] = entriesWithBalance.map((entry) => ({
+                id: entry.id,
+                date: entry.date,
+                documentType: entry.documentType,
+                documentNumber: entry.documentNumber,
+                particulars: entry.particulars,
+                debit: entry.debit,
+                credit: entry.credit,
+                balance: entry.balance,
+                customerOrSupplier: entry.customerOrSupplier,
+              }));
+
+              const selectedEntityName: string | undefined = selectedEntity
+                ? (() => {
+                    for (const group of entityOptions) {
+                      const item = group.items.find((i) => i.value === selectedEntity);
+                      if (item) return item.label;
+                    }
+                    return undefined;
+                  })()
+                : undefined;
+
+              const printData: JournalLedgerData = {
+                title: "Journal Ledger Report",
+                companyName: "Ultra Water Technologies",
+                reportDate: new Date().toLocaleDateString('en-PK', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                }),
+                fromDate: fromDate || undefined,
+                toDate: toDate || undefined,
+                selectedEntity: selectedEntityName,
+                entries: printEntries,
+                totals: {
+                  totalDebit: totals.totalDebit,
+                  totalCredit: totals.totalCredit,
+                  closingBalance: totals.closingBalance,
+                },
+              };
+
+              openJournalLedgerPrintWindow(printData);
+            }}
+          >
+            Print Ledger
+          </Button>
+          <Button
+            leftSection={<RefreshCw size={16} />}
+            variant="outline"
+            onClick={() => {
+              if (typeof loadSales === "function") loadSales();
+              if (typeof loadPurchases === "function") loadPurchases();
+              if (typeof loadCustomers === "function") loadCustomers();
+              if (typeof loadSuppliers === "function") loadSuppliers();
+            }}
+          >
+            Refresh
+          </Button>
+        </Group>
       </Group>
 
       <Card withBorder shadow="sm" p="md">

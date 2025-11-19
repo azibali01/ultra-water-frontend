@@ -216,9 +216,9 @@ export default function SalesDocShell({
       (s, i) => s + (typeof i.amount === "number" ? i.amount : 0),
       0
     );
-    // discounts sum
+    // discounts sum - use discountAmount only to avoid double counting
     const totalDiscountAmount = items.reduce(
-      (s, i) => s + (i.discountAmount ?? i.discount ?? 0),
+      (s, i) => s + (i.discountAmount ?? 0),
       0
     );
     // subtotal (for display) — keep it as gross minus discounts? We'll show both

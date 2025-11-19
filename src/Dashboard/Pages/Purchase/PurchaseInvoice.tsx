@@ -16,7 +16,9 @@ import {
   IconPlus,
   IconPrinter,
   IconTrash,
+  IconDownload,
 } from "@tabler/icons-react";
+import { showNotification } from "@mantine/notifications";
 import type { Supplier } from "../../../components/purchase/SupplierForm";
 import { useDataContext } from "../../Context/DataContext";
 import { formatDate, formatCurrency } from "../../../lib/format-utils";
@@ -671,6 +673,20 @@ export default function PurchaseInvoicesPage() {
                                 Print
                               </Menu.Item>
                               <Menu.Item
+                                onClick={() => {
+                                  const d = getInvoicePrintData(inv);
+                                  openPrintWindow(d);
+                                  showNotification({
+                                    title: "Download Ready",
+                                    message: "Use Ctrl+P or Cmd+P and select 'Save as PDF' to download",
+                                    color: "blue",
+                                  });
+                                }}
+                                leftSection={<IconDownload size={14} />}
+                              >
+                                Download PDF
+                              </Menu.Item>
+                              <Menu.Item
                                 color="red"
                                 onClick={() => setDeleteInvoice(inv)}
                                 leftSection={<IconTrash size={14} />}
@@ -723,62 +739,69 @@ export default function PurchaseInvoicesPage() {
             onClick={async () => {
               if (!deleteInvoice) return;
               setDeleteLoading(true);
+              const invoiceNumber = deleteInvoice.purchaseInvoiceNumber;
               try {
-                if (!deleteInvoice) return;
                 await import("../../../lib/api").then(async (api) => {
-                  await api.deletePurchaseInvoiceByNumber(
-                    deleteInvoice.purchaseInvoiceNumber
-                  );
+                  await api.deletePurchaseInvoiceByNumber(invoiceNumber);
                 });
-                setDeleteInvoice(null);
+                
                 // Refresh the list after deleting a purchase invoice
-                getPurchaseInvoices().then((invoices) => {
-                  setData(
-                    (invoices || []).map((inv: PurchaseInvoiceTableRow) => {
-                      let supplier: Supplier | undefined = undefined;
-                      if (
-                        inv.supplier &&
-                        typeof inv.supplier === "object" &&
-                        "_id" in inv.supplier &&
-                        typeof (inv.supplier as { _id?: unknown })._id ===
-                          "string"
-                      ) {
-                        supplier = suppliers?.find(
-                          (s) => s._id === (inv.supplier as { _id: string })._id
-                        );
-                      }
-                      if (
-                        !supplier &&
-                        inv.supplier &&
-                        typeof inv.supplier === "object" &&
-                        "name" in inv.supplier
-                      ) {
-                        supplier = inv.supplier as Supplier;
-                      }
-                      return {
-                        id:
-                          inv.id ||
-                          inv.purchaseInvoiceNumber ||
-                          crypto.randomUUID(),
-                        purchaseInvoiceNumber: inv.purchaseInvoiceNumber,
-                        invoiceDate: inv.invoiceDate,
-                        expectedDelivery: inv.expectedDelivery,
-                        supplier,
-                        products: inv.products || [],
-                        subTotal: inv.subTotal ?? 0,
-                        total: inv.total ?? 0,
-                        amount: inv.amount ?? inv.total ?? 0,
-                        status: inv.status,
-                        remarks: inv.remarks,
-                        createdAt: inv.createdAt,
-                      };
-                    })
-                  );
+                const invoices = await getPurchaseInvoices();
+                setData(
+                  (invoices || []).map((inv: PurchaseInvoiceTableRow) => {
+                    let supplier: Supplier | undefined = undefined;
+                    if (
+                      inv.supplier &&
+                      typeof inv.supplier === "object" &&
+                      "_id" in inv.supplier &&
+                      typeof (inv.supplier as { _id?: unknown })._id ===
+                        "string"
+                    ) {
+                      supplier = suppliers?.find(
+                        (s) => s._id === (inv.supplier as { _id: string })._id
+                      );
+                    }
+                    if (
+                      !supplier &&
+                      inv.supplier &&
+                      typeof inv.supplier === "object" &&
+                      "name" in inv.supplier
+                    ) {
+                      supplier = inv.supplier as Supplier;
+                    }
+                    return {
+                      id:
+                        inv.id ||
+                        inv.purchaseInvoiceNumber ||
+                        crypto.randomUUID(),
+                      purchaseInvoiceNumber: inv.purchaseInvoiceNumber,
+                      invoiceDate: inv.invoiceDate,
+                      expectedDelivery: inv.expectedDelivery,
+                      supplier,
+                      products: inv.products || [],
+                      subTotal: inv.subTotal ?? 0,
+                      total: inv.total ?? 0,
+                      amount: inv.amount ?? inv.total ?? 0,
+                      status: inv.status,
+                      remarks: inv.remarks,
+                      createdAt: inv.createdAt,
+                    };
+                  })
+                );
+                
+                setDeleteInvoice(null);
+                showNotification({ 
+                  title: "Deleted", 
+                  message: `Purchase Invoice ${invoiceNumber} deleted successfully`, 
+                  color: "green" 
                 });
-                // showNotification({ title: "Deleted", message: `Purchase Invoice ${deleteInvoice.purchaseInvoiceNumber} deleted`, color: "red" });
-              } catch {
-                // let msg = "Failed to delete purchase invoice.";
-                // showNotification({ title: "Error", message: msg, color: "red" });
+              } catch (err) {
+                const msg = err instanceof Error ? err.message : "Failed to delete purchase invoice.";
+                showNotification({ 
+                  title: "Error", 
+                  message: msg, 
+                  color: "red" 
+                });
               } finally {
                 setDeleteLoading(false);
               }

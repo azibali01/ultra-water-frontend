@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useState, useMemo, useEffect } from "react";
 import {
   Modal,
@@ -11,12 +10,18 @@ import {
   ActionIcon,
   Table,
   Title,
+  Select,
 } from "@mantine/core";
 import {
   IconEdit,
   IconTrash,
   IconPrinter,
   IconDotsVertical,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsLeft,
+  IconChevronsRight,
+  IconDownload,
 } from "@tabler/icons-react";
 import openPrintWindow from "../../../components/print/printWindow";
 import SalesDocShell, {
@@ -78,6 +83,9 @@ export default function SaleInvoice() {
   }, []);
 
   const [importQuotationSearch, setImportQuotationSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
   const [editOpen, setEditOpen] = useState(false);
   const [editPayload, setEditPayload] = useState<SalesPayload | null>(null);
   const [editingId, setEditingId] = useState<string | number | null>(null);
@@ -98,6 +106,36 @@ export default function SaleInvoice() {
       return docNo.includes(search);
     });
   }, [importQuotationSearch, quotations]);
+
+  const filteredSales = useMemo(() => {
+    if (!searchQuery) return sales;
+    const search = searchQuery.toLowerCase();
+    return sales.filter((inv) => {
+      const invoiceNo = String(inv.invoiceNumber ?? inv.id ?? "").toLowerCase();
+      const customerName = (
+        typeof inv.customerName === "string" && inv.customerName
+          ? inv.customerName
+          : Array.isArray(inv.customer) && inv.customer[0]?.name
+          ? inv.customer[0].name
+          : typeof inv.customer === "object" && inv.customer && "name" in inv.customer
+          ? String(inv.customer.name)
+          : ""
+      ).toLowerCase();
+      return invoiceNo.includes(search) || customerName.includes(search);
+    });
+  }, [searchQuery, sales]);
+
+  const paginatedSales = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredSales.slice(startIndex, endIndex);
+  }, [filteredSales, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, itemsPerPage]);
 
   const [deleteTarget, setDeleteTarget] = useState<string | number | null>(
     null
@@ -389,6 +427,41 @@ export default function SaleInvoice() {
             </Button>
           </div>
         </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <input
+            type="text"
+            placeholder="Search by Invoice # or Customer..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: "8px 12px",
+              width: "100%",
+              maxWidth: "400px",
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              fontSize: "14px",
+            }}
+          />
+          {filteredSales.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Text size="sm" c="dimmed">
+                Per page
+              </Text>
+              <Select
+                value={String(itemsPerPage)}
+                onChange={(value) => setItemsPerPage(Number(value))}
+                data={[
+                  { value: "10", label: "10" },
+                  { value: "25", label: "25" },
+                  { value: "50", label: "50" },
+                  { value: "100", label: "100" },
+                ]}
+                style={{ width: 80 }}
+                size="xs"
+              />
+            </div>
+          )}
+        </div>
         {/* Unified Add/Edit/Import Sale Invoice Modal */}
         <Modal
           opened={open}
@@ -467,8 +540,8 @@ export default function SaleInvoice() {
           </ScrollArea>
         </Modal>
         {sales && sales.length > 0 ? (
-          <Table withRowBorders withColumnBorders highlightOnHover>
-            <Table.Thead>
+          <Table withRowBorders withColumnBorders withTableBorder highlightOnHover>
+            <Table.Thead bg={"gray.1"}>
               <Table.Tr>
                 <Table.Th>Invoice #</Table.Th>
                 <Table.Th>Date</Table.Th>
@@ -478,7 +551,7 @@ export default function SaleInvoice() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {sales.map((inv, idx) => (
+              {paginatedSales.map((inv, idx) => (
                 <Table.Tr key={inv.invoiceNumber ?? inv.id ?? idx}>
                   <Table.Td>{inv.invoiceNumber ?? inv.id}</Table.Td>
                   <Table.Td>
@@ -642,6 +715,78 @@ export default function SaleInvoice() {
                           Print
                         </Menu.Item>
                         <Menu.Item
+                          leftSection={<IconDownload size={16} />}
+                          onClick={() => {
+                            // Download logic: same as print but trigger download
+                            const invWithItems = inv as SaleRecordWithItems;
+                            const sourceItems = (invWithItems.items && invWithItems.items.length > 0
+                              ? invWithItems.items
+                              : invWithItems.products) ?? [];
+                            const items = sourceItems.map((it: any, idx: number) => ({
+                              ...it,
+                              sr: idx + 1,
+                              itemName: it.itemName ?? it.productName ?? it.name ?? "",
+                              description: it.itemName ?? it.productName ?? it.name ?? "",
+                              section: it.itemName ?? it.productName ?? it.name ?? "",
+                              qty: it.quantity ?? it.qty ?? 0,
+                              quantity: it.quantity ?? it.qty ?? 0,
+                              rate: it.salesRate ?? it.rate ?? it.price ?? 0,
+                              salesRate: it.salesRate ?? it.rate ?? it.price ?? 0,
+                              amount: (it.quantity ?? it.qty ?? 0) * (it.salesRate ?? it.rate ?? it.price ?? 0),
+                              totalGrossAmount: (it.quantity ?? it.qty ?? 0) * (it.salesRate ?? it.rate ?? it.price ?? 0),
+                              totalNetAmount: (it.quantity ?? it.qty ?? 0) * (it.salesRate ?? it.rate ?? it.price ?? 0),
+                            }));
+                            
+                            // Use print window but with download intent
+                            const printData = {
+                              title: "Sales Invoice",
+                              companyName: "Ultra Water Technologies",
+                              addressLines: [],
+                              invoiceNo: String(
+                                inv.invoiceNumber ?? inv.id ?? ""
+                              ),
+                              date:
+                                typeof inv.invoiceDate === "string"
+                                  ? inv.invoiceDate
+                                  : inv.invoiceDate
+                                  ? String(inv.invoiceDate)
+                                  : typeof inv.date === "string"
+                                  ? inv.date
+                                  : "",
+                              ms:
+                                Array.isArray(inv.customer) &&
+                                inv.customer[0]?.name
+                                  ? inv.customer[0].name
+                                  : inv.customerName ?? "",
+                              customer:
+                                Array.isArray(inv.customer) &&
+                                inv.customer[0]?.name
+                                  ? inv.customer[0].name
+                                  : inv.customerName ?? "",
+                              grn: null,
+                              items,
+                              totals: {
+                                subtotal: inv.subTotal ?? 0,
+                                total: inv.totalNetAmount ?? 0,
+                                totalGrossAmount: inv.totalGrossAmount ?? 0,
+                                totalDiscountAmount: inv.totalDiscount ?? 0,
+                                totalNetAmount: inv.totalNetAmount ?? 0,
+                              },
+                            };
+                            
+                            // Open in new window with download prompt
+                            openPrintWindow(printData);
+                            
+                            showNotification({
+                              title: "Download Ready",
+                              message: "Use Ctrl+P or Cmd+P and select 'Save as PDF' to download",
+                              color: "blue",
+                            });
+                          }}
+                        >
+                          Download PDF
+                        </Menu.Item>
+                        <Menu.Item
                           color="red"
                           leftSection={<IconTrash size={16} />}
                           onClick={() => {
@@ -660,6 +805,84 @@ export default function SaleInvoice() {
           </Table>
         ) : (
           <div>No sales invoices found.</div>
+        )}
+        {filteredSales.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 16,
+              padding: "8px 0",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <ActionIcon
+                variant="default"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                size="sm"
+              >
+                <IconChevronsLeft size={16} />
+              </ActionIcon>
+              <ActionIcon
+                variant="default"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                size="sm"
+              >
+                <IconChevronLeft size={16} />
+              </ActionIcon>
+              <div style={{ display: "flex", gap: 4 }}>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(
+                    (page) =>
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 2 && page <= currentPage + 2)
+                  )
+                  .map((page, idx, arr) => (
+                    <div key={page} style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                      {idx > 0 && arr[idx - 1] !== page - 1 && (
+                        <Text size="sm" c="dimmed" style={{ padding: "0 4px" }}>
+                          ...
+                        </Text>
+                      )}
+                      <Button
+                        size="xs"
+                        variant={currentPage === page ? "filled" : "default"}
+                        onClick={() => setCurrentPage(page)}
+                        style={{
+                          minWidth: 32,
+                          height: 32,
+                          padding: 0,
+                        }}
+                      >
+                        {page}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+              <ActionIcon
+                variant="default"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                size="sm"
+              >
+                <IconChevronRight size={16} />
+              </ActionIcon>
+              <ActionIcon
+                variant="default"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                size="sm"
+              >
+                <IconChevronsRight size={16} />
+              </ActionIcon>
+            </div>
+          </div>
         )}
       </div>
       {/* Edit Invoice Modal */}
