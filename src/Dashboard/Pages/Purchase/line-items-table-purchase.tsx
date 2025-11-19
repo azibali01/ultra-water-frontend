@@ -187,6 +187,43 @@ export function PurchaseLineItemsTable({
 
               <Table.Td style={{ padding: 8 }}>
                 <NumberInput
+                  value={row.length || 0}
+                  onChange={(v) =>
+                    updateRow(row.id, { length: Number(v || 0) })
+                  }
+                  min={0}
+                  placeholder="Length"
+                  aria-label={`Length for row ${row.id}`}
+                />
+              </Table.Td>
+
+              <Table.Td style={{ padding: 8 }}>
+                <NumberInput
+                  value={row.quantity || 1}
+                  onChange={(v) =>
+                    updateRow(row.id, { quantity: Number(v || 1) })
+                  }
+                  min={1}
+                  placeholder="Qty"
+                  aria-label={`Quantity for row ${row.id}`}
+                />
+              </Table.Td>
+
+              <Table.Td style={{ padding: 8 }}>
+                <NumberInput
+                  value={row.rate || 0}
+                  onChange={(v) =>
+                    updateRow(row.id, { rate: Number(v || 0) })
+                  }
+                  min={0}
+                  placeholder="Rate"
+                  thousandSeparator=","
+                  aria-label={`Rate for row ${row.id}`}
+                />
+              </Table.Td>
+
+              <Table.Td style={{ padding: 8 }}>
+                <NumberInput
                   value={row.grossAmount}
                   readOnly
                   aria-label={`Gross amount for row ${row.id}`}

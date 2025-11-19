@@ -114,9 +114,14 @@ export function LineItemsTable({
                   onChange={(v: number | string | undefined) => {
                     const quantity = Number(v || 0);
                     const rate = Number(it.salesRate || 0);
+                    const gross = quantity * rate;
+                    const discountPct = Number(it.discount || 0);
+                    const discountAmount = (discountPct / 100) * gross;
+                    const net = gross - discountAmount;
                     update(idx, {
                       quantity,
-                      amount: quantity * rate,
+                      amount: net,
+                      discountAmount,
                     });
                   }}
                   placeholder="Qty"
@@ -138,9 +143,14 @@ export function LineItemsTable({
                   onChange={(v: number | string | undefined) => {
                     const rate = Number(v || 0);
                     const quantity = Number(it.quantity || 0);
+                    const gross = quantity * rate;
+                    const discountPct = Number(it.discount || 0);
+                    const discountAmount = (discountPct / 100) * gross;
+                    const net = gross - discountAmount;
                     update(idx, {
                       salesRate: rate,
-                      amount: quantity * rate,
+                      amount: net,
+                      discountAmount,
                     });
                   }}
                   placeholder="Enter rate"
